@@ -101,6 +101,7 @@ a{color:inherit}
   font-size:17px;font-weight:400;line-height:1.6;letter-spacing:-.005em;
   color:var(--ink-muted);margin:0;max-width:52ch;
 }
+.ly-lead strong{font-weight:600;color:var(--ink)}
 .ly-body{font-size:15px;line-height:1.55;margin:0;max-width:var(--measure)}
 .ly-body strong{font-weight:600;color:var(--ink)}
 .ly-small{font-size:13px;line-height:1.5;color:var(--ink-muted);margin:0}
@@ -126,22 +127,18 @@ a{color:inherit}
 }
 
 /* ── logo ───────────────────────────────────────────────── */
-/* PROVISIONAL: el logo oficial es lytica-v3 (SVG). Reemplazar este
-   wordmark por <img src="lytica-v3_tinta-transparente.svg"> en cuanto
-   el archivo esté en el repo — el DS pide no recrearlo con tipografía. */
-.ly-logo{
-  display:inline-flex;align-items:center;gap:var(--space-2);
-  text-decoration:none;font-weight:600;font-size:19px;
-  letter-spacing:-.01em;color:var(--ink);
+/* Logo oficial v3 (SVG). No recrearlo con tipografía ni separar el
+   punto de la palabra; aire mínimo = el diámetro del punto (ya viene
+   en el viewBox). Tamaño mínimo en pantalla: 80px de ancho. */
+.ly-logo{display:inline-flex;align-items:center;text-decoration:none;line-height:0}
+.ly-logo img{height:46px;width:auto;display:block}
+.ly-logo .ly-logo--crema{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .ly-logo .ly-logo--tinta{display:none}
+  :root:not([data-theme="light"]) .ly-logo .ly-logo--crema{display:block}
 }
-.ly-logo-dot{
-  width:9px;height:9px;border-radius:50%;
-  background:var(--lime);
-  box-shadow:0 0 0 2.5px var(--surface),0 0 0 3.5px var(--ink);
-  flex:none;margin-left:3px;
-}
-.ly-logo--on-panel{color:var(--on-panel)}
-.ly-logo--on-panel .ly-logo-dot{box-shadow:0 0 0 2.5px var(--panel),0 0 0 3.5px var(--on-panel)}
+:root[data-theme="dark"] .ly-logo .ly-logo--tinta{display:none}
+:root[data-theme="dark"] .ly-logo .ly-logo--crema{display:block}
 .ly-wordmark{font-family:var(--font-sans);font-weight:600;letter-spacing:-.01em}
 
 /* ── botones ────────────────────────────────────────────── */
@@ -180,6 +177,8 @@ section{padding-block:var(--space-16)}
   display:flex;align-items:center;justify-content:space-between;
   gap:var(--space-6);min-height:68px;
 }
+.ly-nav-brand{display:flex;align-items:center;gap:var(--space-3)}
+.ly-nav-region{white-space:nowrap}
 .ly-nav-links{display:flex;align-items:center;gap:var(--space-8);list-style:none;margin:0;padding:0}
 .ly-nav-links button{
   background:none;border:0;padding:0;cursor:pointer;
@@ -207,8 +206,6 @@ section{padding-block:var(--space-16)}
 .ly-hero-copy{display:flex;flex-direction:column;gap:var(--space-6);align-items:flex-start}
 .ly-hero-copy .ly-eyebrow{margin-bottom:calc(-1 * var(--space-3))}
 .ly-hero-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-top:var(--space-2)}
-.ly-hero-note{display:flex;align-items:center;gap:var(--space-2)}
-.ly-hero-note::before{content:"✓";color:var(--lime-deep);font-weight:600}
 .ly-sphere{display:flex;justify-content:center}
 .ly-sphere canvas{width:100%;max-width:340px;aspect-ratio:1/1;display:block}
 
@@ -314,6 +311,7 @@ section{padding-block:var(--space-16)}
 }
 
 /* ── pie ────────────────────────────────────────────────── */
+.ly-foot .ly-logo img{height:38px}
 .ly-foot{
   border-top:1px solid var(--line);
   padding-block:var(--space-8);
@@ -330,7 +328,8 @@ section{padding-block:var(--space-16)}
 @media (max-width:900px){
   :root{--gutter:var(--space-6)}
   section{padding-block:var(--space-12)}
-  .ly-nav-links{display:none}
+  .ly-nav-links,.ly-nav-region{display:none}
+  .ly-logo img{height:38px}
   .ly-hero-inner,.ly-split,.ly-callout{grid-template-columns:minmax(0,1fr);gap:var(--space-8)}
   .ly-sphere{order:-1;justify-content:flex-start}
   .ly-sphere canvas{max-width:200px}
@@ -349,9 +348,13 @@ section{padding-block:var(--space-16)}
 
 <nav class="ly-nav">
   <div class="ly-wrap ly-nav-inner">
-    <a href="#top" class="ly-logo" aria-label="Lytica">
-      <span class="ly-wordmark">Lytica</span><span class="ly-logo-dot" aria-hidden="true"></span>
-    </a>
+    <div class="ly-nav-brand">
+      <a href="#top" class="ly-logo" aria-label="Lytica">
+        <img class="ly-logo--tinta" src="lytica-v3_tinta-transparente.svg" alt="Lytica" width="380" height="158">
+        <img class="ly-logo--crema" src="lytica-v3_crema-transparente.svg" alt="" aria-hidden="true" width="380" height="158">
+      </a>
+      <p class="ly-eyebrow ly-nav-region" data-i="nav_region">· América Latina</p>
+    </div>
     <ul class="ly-nav-links">
       <li><button type="button" data-goto="plataforma" data-i="nav_platform">Plataforma</button></li>
       <li><button type="button" data-goto="equipo" data-i="nav_team">Equipo</button></li>
@@ -362,7 +365,7 @@ section{padding-block:var(--space-16)}
         <button type="button" data-lang="es" aria-pressed="true">ES</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
-      <button type="button" class="ly-btn ly-btn-primary ly-btn-sm" data-goto="contacto" data-i="nav_cta">Hablemos →</button>
+      <button type="button" class="ly-btn ly-btn-primary ly-btn-sm" data-goto="contacto" data-i="nav_cta">Contactanos →</button>
     </div>
   </div>
 </nav>
@@ -373,14 +376,11 @@ section{padding-block:var(--space-16)}
   <section class="ly-hero">
     <div class="ly-wrap ly-hero-inner">
       <div class="ly-hero-copy">
-        <p class="ly-eyebrow" data-i="hero_eyebrow">Planificación con IA · América Latina</p>
-        <h1 class="ly-display" data-i="hero_title">Planificá <em>mejor</em>, decidí <span class="ly-mark">con datos</span>.</h1>
-        <p class="ly-lead" data-i="hero_lead">Lytica integra tus ventas, tu stock y tu producción, y te avisa qué producir, cuánto y cuándo.</p>
+        <h1 class="ly-display" data-i="hero_title">Planificá mejor.<br>Decidí con <span class="ly-mark">datos</span>.</h1>
+        <p class="ly-lead" data-i="hero_lead">Convertimos tus datos en mejores decisiones de producción, stock y precio, <strong>con analítica y agentes de IA</strong>.</p>
         <div class="ly-hero-actions">
-          <button type="button" class="ly-btn ly-btn-primary" data-goto="contacto" data-i="hero_cta1">Pedir una demo →</button>
-          <button type="button" class="ly-btn" data-goto="plataforma" data-i="hero_cta2">La plataforma</button>
+          <button type="button" class="ly-btn ly-btn-primary" data-goto="contacto" data-i="hero_cta1">Contactanos →</button>
         </div>
-        <p class="ly-small ly-hero-note" data-i="hero_note">Sin costo y sin compromiso.</p>
       </div>
       <div class="ly-sphere">
         <canvas id="sphere" aria-hidden="true"></canvas>
@@ -585,9 +585,10 @@ section{padding-block:var(--space-16)}
   <footer>
     <div class="ly-wrap ly-foot">
       <a href="#top" class="ly-logo" aria-label="Lytica">
-        <span class="ly-wordmark">Lytica</span><span class="ly-logo-dot" aria-hidden="true"></span>
+        <img class="ly-logo--tinta" src="lytica-v3_tinta-transparente.svg" alt="Lytica" width="380" height="158">
+        <img class="ly-logo--crema" src="lytica-v3_crema-transparente.svg" alt="" aria-hidden="true" width="380" height="158">
       </a>
-      <p class="ly-small" data-i="foot_note">Planificación con IA para alimentos y bebidas · Buenos Aires</p>
+      <p class="ly-small" data-i="foot_note">Planificación con IA para empresas de consumo masivo · Buenos Aires</p>
       <a class="ly-site" href="https://lytica.la">lytica.la</a>
     </div>
   </footer>
@@ -599,12 +600,11 @@ section{padding-block:var(--space-16)}
 const copy = {
   es:{},
   en:{
-    nav_platform:'Platform', nav_team:'Team', nav_contact:'Contact', nav_cta:"Let's talk →",
-    hero_eyebrow:'AI planning · Latin America',
-    hero_title:'Plan <em>smarter</em>, decide <span class="ly-mark">with data</span>.',
-    hero_lead:'Lytica connects your sales, stock and production, and tells you what to make, how much and when.',
-    hero_cta1:'Book a demo →', hero_cta2:'The platform',
-    hero_note:'Free, no commitment.',
+    nav_platform:'Platform', nav_team:'Team', nav_contact:'Contact', nav_cta:'Contact us →',
+    nav_region:'· Latin America',
+    hero_title:'Plan smarter.<br>Decide with <span class="ly-mark">data</span>.',
+    hero_lead:'We turn your data into better production, stock and pricing decisions, <strong>with analytics and AI agents</strong>.',
+    hero_cta1:'Contact us →',
     problem_eyebrow:'The problem', problem_title:'Your data already has <em>the answers.</em>',
     problem_text:"Food SMEs already have the data they need: sales, production, stock. The problem is it's scattered across spreadsheets, paper and systems that don't talk to each other, and <strong>no one has the time to turn it into the decisions that move the margins.</strong> Lytica organizes that data, runs the models, and shows what to do.",
     problem_note_label:'The cost of not planning',
@@ -636,7 +636,7 @@ const copy = {
     contact_lead:"We're onboarding our first customers in Argentina. If you want to be part of it, reach out.",
     form_name:'Name', form_email:'Email', form_company:'Company', form_message:'Tell us about your business',
     form_submit:'Send message →', form_ok:"Thanks! We'll be in touch soon.",
-    foot_note:'AI planning for food &amp; beverage · Buenos Aires'
+    foot_note:'AI planning for consumer goods companies · Buenos Aires'
   }
 };
 document.querySelectorAll('[data-i]').forEach(el => { copy.es[el.dataset.i] = el.innerHTML; });
