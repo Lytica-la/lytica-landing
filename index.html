@@ -1295,7 +1295,10 @@ function layout(){
   const altoNube  = angosto ? (abajo - arriba) * 0.5 : (abajo - arriba) * 0.26;
 
   dots = [];
-  const cantidad = Math.round(Math.min(260, Math.max(120, (W * H) / 4200)));
+  // En celular la nube ocupa toda la pantalla: con los puntos de
+  // escritorio queda pesada. Acá son pocos, chicos y de distinto peso.
+  const cantidad = angosto ? 64
+        : Math.round(Math.min(260, Math.max(120, (W * H) / 4200)));
   let intentos = 0;
   while (dots.length < cantidad && intentos < cantidad * 40){
     intentos++;
@@ -1308,8 +1311,9 @@ function layout(){
     } else if (x < limite) continue;                       // en escritorio, nunca sobre el texto
     dots.push({
       sx: x, sy: y,
-      r: 2 + Math.random() * 3.6,
-      lime: Math.random() < 0.18,
+      r: angosto ? 0.9 + Math.random() * 1.5 : 2 + Math.random() * 3.6,
+      peso: angosto ? 0.34 + Math.random() * 0.46 : 1,
+      lime: Math.random() < (angosto ? 0.14 : 0.18),
       espera: Math.random() * T_ESCALON,
       curva: (Math.random() - 0.5) * Math.min(W, H) * 0.22,
       phase: Math.random() * 6.28
@@ -1342,6 +1346,7 @@ function draw(time){
     } else {
       radio = d.r * (0.9 + 0.1 * Math.sin(t + d.phase));
     }
+    alpha *= (d.peso || 1);
     if (radio <= 0.05 || alpha <= 0.02) continue;
     ctx.globalAlpha = alpha;
     ctx.beginPath();
