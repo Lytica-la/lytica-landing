@@ -585,12 +585,22 @@ section[id]{scroll-margin-top:89px}
   /* barra: el menú se esconde, el CTA queda a mano */
   .ly-nav-inner{grid-template-columns:auto 1fr;gap:var(--space-3);min-height:72px}
   .ly-nav-links{display:none}
-  .ly-logo img{height:46px}
+  /* el logo manda; el botón y el idioma ceden protagonismo */
+  .ly-logo img{height:68px}
+  .ly-btn-sm{height:32px;font-size:12px;padding:0 var(--space-3)}
+  .ly-nav-right{gap:6px}
+  .ly-lang{padding:2px;border-radius:3px}
+  .ly-lang button{font-size:10px;padding:3px 6px;letter-spacing:.02em}
+  .ly-nav-inner{gap:var(--space-2);min-height:78px}
+  .ly-hero-actions .ly-btn{height:48px;font-size:16px;padding:0 var(--space-6)}
   .ly-foot .ly-logo img{height:40px}
   /* hero */
   .ly-hero{min-height:auto;padding-block:clamp(48px,9vh,88px) var(--space-8)}
   .ly-hero-inner{grid-template-columns:minmax(0,1fr)}
-  .ly-backed{margin-top:var(--space-8);gap:var(--space-4)}
+  /* el respaldo, más chico y más abajo */
+  .ly-backed{margin-top:clamp(40px,7vh,72px);gap:var(--space-3);padding-top:var(--space-4)}
+  .ly-backed-card{padding:var(--space-2) var(--space-3)}
+  .ly-backed-card img{height:20px}
   /* problema y solución */
   .ly-pares{grid-template-columns:minmax(0,1fr)}
   .ly-pares-head .ly-h1{font-size:clamp(26px,7vw,34px)}
@@ -743,7 +753,7 @@ section[id]{scroll-margin-top:89px}
           <div class="ly-tags">
             <span class="ly-tag" data-i="lucia_tag1">Estrategia</span>
             <span class="ly-tag" data-i="lucia_tag2">Analytics</span>
-            <span class="ly-tag" data-i="lucia_tag3">Negocio</span>
+            <span class="ly-tag" data-i="lucia_tag3">Negocios</span>
           </div>
         </div>
         <div class="ly-card ly-card-featured ly-member ly-reveal">
@@ -936,10 +946,13 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   // los cuatro problemas entran de a uno; después, sus soluciones igual
   document.querySelectorAll('.ly-pares').forEach(grilla => {
     ['.ly-par-problema', '.ly-par-solucion'].forEach(sel => {
-      // Los problemas esperan a que termine el encabezado: si la sección
-      // entra entera en pantalla, igual se lee en orden.
-      const base = sel === '.ly-par-problema' ? 500 : 150;
-      const paso = sel === '.ly-par-problema' ? PASO_CAJA : 200;
+      // En escritorio las cuatro cajas entran juntas de costado, así que
+      // el ritmo lo da el reloj. En celular están apiladas y cada una
+      // entra en su momento del scroll: ahí el reloj sobra y, sumado,
+      // hace que las primeras se amontonen y las últimas tarden de más.
+      const angosto = innerWidth < 700;
+      const base = angosto ? 120 : (sel === '.ly-par-problema' ? 500 : 150);
+      const paso = angosto ? 0 : (sel === '.ly-par-problema' ? PASO_CAJA : 200);
       grilla.querySelectorAll(sel).forEach((caja, i) => {
         const demora = base + i * paso;
         caja.style.transitionDelay = demora + 'ms';
@@ -1010,6 +1023,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   function revelarPuente(base){
     if (puenteHecho || !pasos.length) return;
     puenteHecho = true;
+    base += Math.max(0, finFlecha - performance.now());
     pasos.forEach((paso, i) => {
       paso.style.transitionDelay = (base + i * 240) + 'ms';
       paso.classList.add('visto');
@@ -1018,12 +1032,19 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     revelarSoluciones(base + (pasos.length - 1) * 240 + 750 + 200);
   }
 
+  // Cuándo termina de entrar la flecha que cierra los problemas. El
+  // puente espera a eso: si no, al scrollear rápido Lytica aparece
+  // antes que la flecha, que está en la pantalla anterior.
+  let finFlecha = 0;
   const revelar = (entradas, obs) => {
     entradas.forEach(e => {
       if (!e.isIntersecting) return;
       const el = e.target;
       el.classList.add('visto');
       obs.unobserve(el);
+      if (el.classList.contains('ly-conector--problema')){
+        finFlecha = performance.now() + (parseInt(el.style.transitionDelay) || 0) + 750;
+      }
     });
   };
   const io = new IntersectionObserver(revelar, { threshold: 0.05, rootMargin: '0px 0px -22% 0px' });
@@ -1032,6 +1053,16 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   // si disparan al asomar la sección, la secuencia ya terminó cuando mirás.
   const ioTarde = new IntersectionObserver(revelar, { threshold: 0.1, rootMargin: '0px 0px -18% 0px' });
   tarde.forEach(b => ioTarde.observe(b));
+
+  // En celular las soluciones también están apiladas: en vez de entrar
+  // todas juntas detrás del puente, cada una espera su turno de scroll.
+  if (innerWidth < 700 && cajasSolucion.length){
+    solucionesHechas = true;   // así el puente ya no las dispara en grupo
+    cajasSolucion.forEach(caja => {
+      caja.style.transitionDelay = '120ms';
+      ioTarde.observe(caja);
+    });
+  }
   // Las soluciones también se encadenan: entran cuando el puente terminó.
 
   // El puente vive en su propia pantalla: dispara al entrar en ella y
@@ -1132,9 +1163,15 @@ function layout(){
   }
   if (abajo - arriba < 80) abajo = H - 8;   // por si la franja no está
 
-  const cx = limite + (W - limite) * 0.5;
-  const cy = arriba + (abajo - arriba) * 0.47;
-  const anchoNube = (W - limite) * 0.38, altoNube = (abajo - arriba) * 0.26;
+  // En celular la nube nace en el borde superior derecho; en escritorio
+  // sigue al costado del texto, a media altura.
+  const angosto = W < 700;
+  if (angosto) limite = W * 0.5;
+  const cx = angosto ? W * 0.82 : limite + (W - limite) * 0.5;
+  const cy = angosto ? arriba + (abajo - arriba) * 0.08
+                     : arriba + (abajo - arriba) * 0.47;
+  const anchoNube = angosto ? W * 0.17 : (W - limite) * 0.38;
+  const altoNube  = angosto ? (abajo - arriba) * 0.09 : (abajo - arriba) * 0.26;
 
   dots = [];
   const cantidad = Math.round(Math.min(260, Math.max(120, (W * H) / 4200)));
