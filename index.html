@@ -91,7 +91,7 @@ a{color:inherit}
   margin:0;
   text-wrap:balance;
 }
-.ly-display{font-size:clamp(44px,7vw,100px);font-weight:300;line-height:1;letter-spacing:-.025em}
+.ly-display{font-size:clamp(38px,5.8vw,84px);font-weight:300;line-height:1;letter-spacing:-.025em}
 .ly-h1{font-size:clamp(32px,4.2vw,60px);font-weight:300;line-height:1.04;letter-spacing:-.02em}
 .ly-h2{font-size:clamp(22px,2.2vw,26px);font-weight:400;line-height:1.2;letter-spacing:-.01em}
 .ly-h3{font-size:21px;font-weight:400;line-height:1.25;letter-spacing:-.01em}
@@ -141,6 +141,21 @@ a{color:inherit}
 :root[data-theme="dark"] .ly-logo .ly-logo--tinta{display:none}
 :root[data-theme="dark"] .ly-logo .ly-logo--crema{display:block}
 .ly-wordmark{font-family:var(--font-sans);font-weight:600;letter-spacing:-.01em}
+/* El logo dentro de una frase: su tipografía está vectorizada en el
+   SVG, así que se usa el archivo y no una fuente. La línea de base del
+   wordmark cae al 67% del alto del viewBox, de ahí el desplazamiento. */
+.ly-marca-inline{
+  display:inline-block;vertical-align:baseline;
+  position:relative;top:.52em;margin-inline:.05em;
+}
+.ly-marca-inline img{height:1.58em;width:auto;display:block}
+.ly-marca-inline .ly-logo--crema{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .ly-marca-inline .ly-logo--tinta{display:none}
+  :root:not([data-theme="light"]) .ly-marca-inline .ly-logo--crema{display:block}
+}
+:root[data-theme="dark"] .ly-marca-inline .ly-logo--tinta{display:none}
+:root[data-theme="dark"] .ly-marca-inline .ly-logo--crema{display:block}
 
 /* ── botones ────────────────────────────────────────────── */
 .ly-btn{
@@ -162,16 +177,61 @@ a{color:inherit}
 
 /* ── layout ─────────────────────────────────────────────── */
 .ly-wrap{max-width:var(--shell);margin:0 auto;padding-inline:var(--gutter)}
-section{padding-block:var(--space-16)}
-.ly-band{background:var(--surface-sunken);border-block:1px solid var(--line)}
+section{padding-block:clamp(72px,11vh,132px)}
+.ly-band{
+  background:var(--surface-sunken);
+  border-block:1px solid var(--line);
+}
+/* menos aire arriba: la sección tiene que entrar completa en pantalla */
+#plataforma{
+  /* sin borde abajo: las dos mitades son una sola banda */
+  border-bottom:0;
+  /* el bloque se apoya arriba: el aire sobrante queda abajo */
+  padding-block:clamp(40px,6vh,72px) clamp(24px,3vh,40px);
+  min-height:auto;display:block;
+}
+#plataforma > .ly-wrap{width:100%}
+#solucion{
+  border-top:0;
+  /* el padding de 1px corta el colapso de márgenes: sin él, el margen
+     superior de la grilla se escapa de la sección y deja una franja
+     del fondo de página entre las dos mitades */
+  padding-block:1px clamp(56px,8vh,96px);
+}
+#solucion .ly-pares{margin-top:clamp(28px,4vh,48px)}
+#solucion > .ly-wrap{width:100%}
+#equipo{
+  min-height:calc(100svh - 89px);
+  display:flex;align-items:center;
+  padding-block:clamp(24px,4vh,48px);
+}
+#equipo > .ly-wrap{width:100%}
+/* al tocar un enlace del menú, la sección no queda bajo la barra */
+section[id]{scroll-margin-top:89px}
+#contacto{
+  /* la barra (89) y el pie (174): así la última pantalla muestra el
+     panel completo y el pie debajo, sin que se corte ninguno */
+  min-height:calc(100svh - 89px - 174px);
+  display:flex;align-items:center;
+  /* el margen de la sección también entra en la cuenta */
+  padding-block:clamp(24px,5vh,44px);
+}
+#contacto > .ly-wrap{width:100%}
+/* el problema es una pausa: pantalla propia, centrado vertical */
+.ly-band--pausa{
+  min-height:72svh;
+  display:flex;align-items:center;
+}
+.ly-band--pausa > .ly-wrap{width:100%}
 .ly-head{display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-12)}
 .ly-head .ly-lead{margin-top:var(--space-1)}
 
 /* ── nav ────────────────────────────────────────────────── */
 .ly-nav{
   position:sticky;top:0;z-index:50;
-  background:color-mix(in srgb,var(--surface) 88%,transparent);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  background:color-mix(in srgb,var(--surface-raised) 90%,transparent);
+  backdrop-filter:blur(14px) saturate(1.1);
+  -webkit-backdrop-filter:blur(14px) saturate(1.1);
   border-bottom:1px solid var(--line);
 }
 .ly-nav-inner{
@@ -224,6 +284,18 @@ section{padding-block:var(--space-16)}
 }
 .ly-punto.puesto{opacity:1}
 
+/* ── aparición al scrollear ─────────────────────────────
+   Sin JS o con "reducir movimiento", todo se ve igual:
+   la clase js-reveal solo la pone el script.             */
+:root.js-reveal .ly-reveal{opacity:0;transform:translateY(48px)}
+:root.js-reveal .ly-solucion.ly-reveal{transform:translateY(-26px)}
+:root.js-reveal .ly-solucion.ly-reveal.visto{transform:none}
+:root.js-reveal .ly-reveal.visto{
+  opacity:1;transform:none;
+  transition:opacity .75s cubic-bezier(.22,1,.36,1),
+             transform .75s cubic-bezier(.22,1,.36,1);
+}
+
 /* ── respaldo ──────────────────────────────────────────── */
 .ly-backed{
   display:flex;align-items:center;gap:var(--space-8);flex-wrap:wrap;
@@ -250,6 +322,112 @@ section{padding-block:var(--space-16)}
 :root[data-theme="dark"] .ly-backed-card .ly-backed--color{display:none}
 :root[data-theme="dark"] .ly-backed-card .ly-backed--blanco{display:block}
 
+/* ── problemas y soluciones ─────────────────────────────
+   Fila de arriba: los cuatro problemas, que entran de a
+   uno. Fila de abajo: la solución de cada uno, que cae
+   debajo al seguir bajando.                             */
+.ly-pares{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--space-4);
+  margin-top:var(--space-12);
+  align-items:stretch;
+}
+.ly-pares-head{
+  grid-column:1/-1;display:flex;flex-direction:column;gap:var(--space-3);
+  margin-bottom:clamp(28px,4.5vh,56px);
+}
+.ly-pares-head .ly-h1{font-size:clamp(28px,3vw,44px)}
+.ly-pares-head .ly-eyebrow{font-size:13px;letter-spacing:.12em;color:var(--ink)}
+.ly-parte{display:inline-block}
+.ly-pares-head--solucion{margin-top:clamp(48px,7vh,88px)}
+.ly-bar{width:28px;height:3px;background:var(--lime);border-radius:2px;flex:none}
+.ly-par-caja{
+  border-radius:var(--radius-md);padding:var(--space-4) var(--space-6);
+  display:flex;flex-direction:column;gap:var(--space-2);
+}
+.ly-par-problema{
+  position:relative;
+  background:var(--panel);color:var(--on-panel);
+  border:1.5px solid var(--panel);
+  justify-content:flex-start;align-items:flex-start;text-align:left;
+  gap:var(--space-2);
+}
+/* en tema Tinta la tarjeta necesita un borde que la despegue del fondo */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .ly-par-problema{border-color:var(--line)}
+}
+:root[data-theme="dark"] .ly-par-problema{border-color:var(--line)}
+.ly-par-solucion{border:1px solid var(--line);background:var(--surface-raised)}
+.ly-par-caja p{margin:0;font-size:15px;line-height:1.6;color:var(--ink-muted)}
+.ly-par-caja .ly-h3{font-size:19px}
+.ly-par-solucion .ly-bar{margin-top:var(--space-1)}
+.ly-par-solucion .ly-eyebrow{font-size:15px;letter-spacing:.13em}
+.ly-par-solucion p{color:var(--ink)}
+/* Igual que la etiqueta de la solución: Inter 14px en mayúsculas
+   con tracking .14em, al máximo contraste contra su fondo. En la
+   solución eso es ink; acá, sobre tinta, es on-panel.          */
+.ly-par-problema .ly-bar{margin-top:var(--space-1)}
+.ly-par-problema .ly-h3{
+  font-family:var(--font-sans);
+  font-size:15px;font-weight:500;line-height:1.4;
+  letter-spacing:.13em;text-transform:uppercase;
+  color:var(--on-panel);
+}
+.ly-par-problema p{
+  font-size:15px;line-height:1.6;
+  color:var(--on-panel);opacity:.88;
+}
+/* el puente: la solución es Lytica */
+.ly-puente{
+  grid-column:1/-1;
+  display:flex;flex-direction:column;align-items:center;
+  gap:var(--space-2);text-align:center;
+  padding-block:0 clamp(20px,2.6vh,32px);
+}
+.ly-puente .ly-conector{margin-top:clamp(60px,7.5vh,84px)}
+.ly-conector--problema{
+  grid-column:1/-1;justify-self:center;
+  margin-top:clamp(24px,4vh,48px);
+}
+.ly-conector{
+  position:relative;
+  width:2px;height:clamp(44px,6.5vh,68px);
+  border-radius:1px;
+  background:linear-gradient(
+    color-mix(in srgb,var(--lime-deep) 15%,transparent) 0%,
+    var(--lime-deep) 70%);
+}
+/* la punta, dibujada con dos bordes girados: queda nítida en cualquier tamaño */
+.ly-conector::after{
+  content:'';position:absolute;left:50%;bottom:0;
+  width:9px;height:9px;
+  border-right:2px solid var(--lime-deep);
+  border-bottom:2px solid var(--lime-deep);
+  transform:translate(-50%,35%) rotate(45deg);
+  animation:ly-corre 1.9s cubic-bezier(.4,0,.6,1) infinite;
+}
+@keyframes ly-corre{
+  0%,100%{transform:translate(-50%,35%) rotate(45deg);filter:opacity(.55)}
+  50%{transform:translate(-50%,120%) rotate(45deg);filter:opacity(1)}
+}
+.ly-puente-marca{display:block}
+.ly-puente-logo{display:block;height:80px;width:auto}
+.ly-puente .ly-logo--crema{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .ly-puente .ly-logo--tinta{display:none}
+  :root:not([data-theme="light"]) .ly-puente .ly-logo--crema{display:block}
+}
+:root[data-theme="dark"] .ly-puente .ly-logo--tinta{display:none}
+:root[data-theme="dark"] .ly-puente .ly-logo--crema{display:block}
+.ly-puente p{max-width:54ch;margin:0;font-size:19px;line-height:1.5;color:var(--ink-muted)}
+/* más específica que .ly-puente p, si no le gana el margin:0 */
+.ly-puente p.ly-puente-fuerte{color:var(--ink);font-weight:600;margin-top:-8px}
+
+/* conector: una línea baja del problema y una flecha entra
+   en su solución, las dos centradas en la misma columna */
+
+
 /* ── problema ───────────────────────────────────────────── */
 .ly-centered{
   max-width:840px;margin-inline:auto;text-align:center;
@@ -258,44 +436,28 @@ section{padding-block:var(--space-16)}
 .ly-centered .ly-eyebrow{margin-bottom:calc(-1 * var(--space-3))}
 .ly-centered .ly-body{max-width:62ch;font-size:17px;line-height:1.65}
 
-/* ── módulos: filas etiqueta / valor ───────────────────── */
-.ly-rows{display:flex;flex-direction:column;border-top:1px solid var(--line)}
-.ly-row{
-  display:grid;grid-template-columns:140px minmax(0,1fr) auto;
-  gap:var(--space-6);align-items:baseline;
-  padding-block:var(--space-6);
-  border-bottom:1px solid var(--line);
-  text-align:left;width:100%;
-  background:transparent;border-inline:0;border-top:0;
-  font:inherit;color:inherit;cursor:default;
-}
-.ly-row .ly-eyebrow{padding-top:6px}
-.ly-row-text{display:flex;flex-direction:column;gap:var(--space-1)}
-.ly-row-text p{margin:0;font-size:15px;color:var(--ink-muted);max-width:56ch}
-.ly-row-arrow{align-self:center;color:var(--line);font-size:18px;transition:color .2s ease,transform .2s ease}
-.ly-row:hover{background:var(--surface-raised)}
-.ly-row:hover .ly-row-arrow{color:var(--lime-deep);transform:translateX(4px)}
-.ly-row:hover .ly-eyebrow{color:var(--ink)}
-
 /* ── tarjetas ───────────────────────────────────────────── */
 .ly-grid{display:grid;gap:var(--space-4);grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.ly-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-6)}
+.ly-grid-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4);max-width:1180px;margin-inline:auto}
 .ly-card{
   background:var(--surface-raised);
   border:1px solid var(--line);
   border-radius:var(--radius-md);
-  padding:var(--space-6);
+  padding:var(--space-4);
   display:flex;flex-direction:column;gap:var(--space-2);
 }
 .ly-card-featured{border:1.5px solid var(--ink);box-shadow:var(--shadow-lime)}
 .ly-card .ly-h3{margin-top:var(--space-1)}
 .ly-card p{font-size:13px;line-height:1.5;margin:0;color:var(--ink-muted)}
-.ly-bar{width:24px;height:3px;background:var(--lime);border-radius:2px}
 
 /* ── equipo ─────────────────────────────────────────────── */
-.ly-member{gap:var(--space-4)}
+.ly-member{gap:var(--space-3);align-items:center;text-align:center}
+.ly-member .ly-member-name{align-items:center}
+.ly-member p{max-width:36ch;font-size:13px;line-height:1.55}
 .ly-portrait{
-  aspect-ratio:4/5;border-radius:var(--radius-sm);
+  aspect-ratio:1/1;width:208px;max-width:100%;
+  margin-inline:auto;
+  border-radius:var(--radius-md);
   background:var(--surface-sunken);
   overflow:hidden;position:relative;
 }
@@ -310,18 +472,21 @@ section{padding-block:var(--space-16)}
 }
 .ly-member-name{display:flex;flex-direction:column;gap:var(--space-1)}
 .ly-member p{font-size:13px;line-height:1.5;color:var(--ink-muted);margin:0}
-.ly-tags{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
+.ly-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:auto;padding-top:var(--space-3)}
 .ly-tag{
-  display:inline-block;font-size:12px;line-height:24px;
+  display:inline-block;
+  font-size:10px;font-weight:600;line-height:22px;
+  letter-spacing:.06em;text-transform:uppercase;
   padding:0 var(--space-3);border-radius:var(--radius-pill);
   background:var(--lime-soft);color:var(--ink);
+  border:1px solid color-mix(in srgb,var(--lime-deep) 45%,transparent);
 }
 
 /* ── cierre en panel tinta ──────────────────────────────── */
 .ly-callout{
   background:var(--panel);color:var(--on-panel);
   border-radius:var(--radius-lg);
-  padding:var(--space-16) var(--space-12);
+  padding:clamp(32px,5vh,56px) clamp(32px,4vw,48px);
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:var(--space-16);align-items:start;
 }
@@ -353,25 +518,38 @@ section{padding-block:var(--space-16)}
 .ly-foot{
   border-top:1px solid var(--line);
   padding-block:var(--space-8);
-  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-4);
+  display:flex;flex-direction:column;gap:var(--space-6);
 }
-.ly-foot a.ly-site{
-  background:var(--lime);color:var(--on-lime);
-  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;
-  border-radius:var(--radius-pill);padding:2px 10px;
-  font-size:13px;font-weight:600;
+.ly-foot-top{
+  display:flex;flex-wrap:wrap;align-items:center;
+  justify-content:space-between;gap:var(--space-4);
+}
+.ly-foot-base{
+  border-top:1px solid var(--line);
+  padding-top:var(--space-4);
+}
+.ly-mail{
+  font-size:15px;color:var(--ink-muted);
+  text-decoration:none;
+  transition:color .18s ease,text-decoration-color .18s ease;
+}
+/* Verde oscurecido hacia tinta: el lime-deep puro sobre crema queda en
+   2,4:1 y el manual lo reserva para cifras grandes. Esta mezcla da 4,7:1. */
+.ly-mail:hover,.ly-mail:focus-visible{
+  color:color-mix(in srgb,var(--lime-deep) 55%,var(--ink));
+  text-decoration:underline;
+  text-decoration-color:var(--lime-deep);
+  text-decoration-thickness:1.5px;
+  text-underline-offset:4px;
 }
 
 /* ── responsive ─────────────────────────────────────────── */
+@media (max-width:1200px){
+  .ly-pares{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media (max-width:900px){
-  section{padding-block:var(--space-12)}
-  .ly-nav-links{display:none}
-  .ly-logo img{height:44px}
-  .ly-hero{min-height:auto;padding-block:var(--space-12)}
-  .ly-hero-inner,.ly-callout{grid-template-columns:minmax(0,1fr);gap:var(--space-8)}
-  .ly-grid,.ly-grid-3{grid-template-columns:minmax(0,1fr)}
-  .ly-row{grid-template-columns:minmax(0,1fr) auto;gap:var(--space-2) var(--space-4)}
-  .ly-row .ly-eyebrow{grid-column:1/-1;padding-top:0}
+  #plataforma,#solucion,#equipo,#contacto{min-height:auto;display:block}
+  .ly-pares{grid-template-columns:minmax(0,1fr)}
   .ly-callout{padding:var(--space-8) var(--space-6)}
   .ly-form-row{grid-template-columns:minmax(0,1fr)}
 }
@@ -410,7 +588,7 @@ section{padding-block:var(--space-16)}
     <canvas class="ly-hero-canvas" id="sphere" aria-hidden="true"></canvas>
     <div class="ly-wrap ly-hero-inner">
       <div class="ly-hero-copy">
-        <h1 class="ly-display" data-i="hero_title">Planificá mejor.<br>Decidí con <span class="ly-mark">datos</span><span class="ly-punto" id="punto-final"></span></h1>
+        <h1 class="ly-display" data-i="hero_title">Planificá mejor.<br>Decidí con <em>datos</em><span class="ly-punto" id="punto-final"></span></h1>
         <p class="ly-lead" data-i="hero_lead">Convertimos tus datos en mejores decisiones de producción, stock y precio, <strong>con analítica y agentes de IA</strong>.</p>
         <div class="ly-hero-actions">
           <button type="button" class="ly-btn ly-btn-primary" data-goto="contacto" data-i="hero_cta1">Contactanos →</button>
@@ -429,106 +607,83 @@ section{padding-block:var(--space-16)}
   </section>
 
   <!-- ── problema ──────────────────────────────────────── -->
-  <section class="ly-band">
-    <div class="ly-wrap ly-centered">
-      <p class="ly-eyebrow" data-i="problem_eyebrow">El problema</p>
-      <h2 class="ly-h1" data-i="problem_title">Tus datos ya tienen <em>las respuestas.</em></h2>
-      <p class="ly-body" data-i="problem_text">Las PyMEs ya tienen los datos que necesitan: ventas, producción, stock. El problema es que están dispersos en planillas, papeles y sistemas que no se hablan entre sí, y <strong>nadie tiene el tiempo de transformarlos en las decisiones que impactan en los márgenes.</strong> Lytica ordena esos datos, corre los modelos, y muestra qué hacer.</p>
+  <section class="ly-band" id="plataforma">
+    <div class="ly-wrap">
+      <div class="ly-pares">
+        <div class="ly-pares-head ly-pares-head--problema ly-reveal">
+          <h2 class="ly-h1" data-i="problem_title"><span class="ly-parte">Los datos ya están.</span> <em class="ly-parte">Pero no trabajan para vos.</em></h2>
+          
+        </div>
+        <div class="ly-par-caja ly-par-problema ly-col-1 ly-reveal">
+          <h3 class="ly-h3" data-i="p1_titulo">Datos dispersos</h3>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="p1_texto">Forms, Excels rotos, planillas de papel y sistemas (ERP, CRM) que no se hablan entre sí. Información de sobra, pero imposible de cruzar.</p>
+        </div>
+        <div class="ly-par-caja ly-par-problema ly-col-2 ly-reveal">
+          <h3 class="ly-h3" data-i="p2_titulo">Visibilidad tardía</h3>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="p2_texto">Los indicadores del día no están en tiempo real cuando tenés que decidir.</p>
+        </div>
+        <div class="ly-par-caja ly-par-problema ly-col-3 ly-reveal">
+          <h3 class="ly-h3" data-i="p3_titulo">Planificación reactiva</h3>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="p3_texto">Cuánto producir y cuánto comprar se decide sobre la marcha, reaccionando al faltante o al sobrante. Sin modelos que anticipen la demanda.</p>
+        </div>
+        <div class="ly-par-caja ly-par-problema ly-col-4 ly-reveal">
+          <h3 class="ly-h3" data-i="p4_titulo">Procesos manuales</h3>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="p4_texto">Pedir y comparar presupuestos, reponer stock, actualizar precios: tareas repetitivas que consumen horas, una por una.</p>
+        </div>
+        <span class="ly-conector ly-conector--problema ly-reveal" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ly-band ly-band--solucion" id="solucion">
+    <div class="ly-wrap">
+      <div class="ly-pares">
+        <div class="ly-puente">
+          <span class="ly-puente-marca ly-paso">
+            <img class="ly-puente-logo ly-logo--tinta" src="lytica-v3_tinta-transparente.svg" alt="Lytica" width="380" height="158">
+            <img class="ly-puente-logo ly-logo--crema" src="lytica-v3_crema-transparente.svg" alt="" aria-hidden="true" width="380" height="158">
+          </span>
+          <p class="ly-paso" data-i="puente_texto1">Ordena esos datos, corre los modelos y te dice qué hacer.</p>
+          <p class="ly-paso ly-puente-fuerte" data-i="puente_texto2">Vos supervisás y ejecutás.</p>
+          <span class="ly-conector ly-paso" aria-hidden="true"></span>
+        </div>
+        <div class="ly-par-caja ly-par-solucion ly-col-1 ly-solucion">
+          <p class="ly-eyebrow" data-i="s1_etiqueta">Data infrastructure & integration</p>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="s1_texto">Digitalizamos tus planillas, reemplazamos los Excels e integramos tus sistemas. Todo limpio, conectado y en la nube.</p>
+        </div>
+        <div class="ly-par-caja ly-par-solucion ly-col-2 ly-solucion">
+          <p class="ly-eyebrow" data-i="s2_etiqueta">Real-time business intelligence</p>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="s2_texto">Stock, producción, ventas y márgenes en vivo, cada rol con su vista, con alertas cuando algo se desvía.</p>
+        </div>
+        <div class="ly-par-caja ly-par-solucion ly-col-3 ly-solucion">
+          <p class="ly-eyebrow" data-i="s3_etiqueta">Decision modelling</p>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="s3_texto">Forecast de demanda y optimización de producción, stock y compras. Sabés qué viene y cuánto es lo justo.</p>
+        </div>
+        <div class="ly-par-caja ly-par-solucion ly-col-4 ly-solucion">
+          <p class="ly-eyebrow" data-i="s4_etiqueta">AI agents</p>
+          <span class="ly-bar" aria-hidden="true"></span>
+          <p data-i="s4_texto">Cotizan con proveedores, reponen stock y ajustan precios para tu margen. Vos aprobás.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ── plataforma ────────────────────────────────────── -->
-  <section id="plataforma">
-    <div class="ly-wrap">
-      <div class="ly-head">
-        <p class="ly-eyebrow" data-i="platform_eyebrow">Soluciones</p>
-        <h2 class="ly-h1" data-i="platform_title">Cinco soluciones, <em>una plataforma.</em></h2>
-        <p class="ly-lead" data-i="platform_lead">Lytica integra los datos existentes de tu empresa y aplica modelos analíticos en cada nivel de decisión operativa, sin necesitar un equipo de data scientists propio.</p>
-      </div>
-
-      <div class="ly-rows">
-        <div class="ly-row">
-          <p class="ly-eyebrow" data-i="mod1_field">Demanda</p>
-          <div class="ly-row-text">
-            <h3 class="ly-h3" data-i="mod1_title">Forecast de demanda</h3>
-            <p data-i="mod1_text">Anticipá qué vas a vender antes de que pase.</p>
-          </div>
-          <span class="ly-row-arrow" aria-hidden="true">→</span>
-        </div>
-        <div class="ly-row">
-          <p class="ly-eyebrow" data-i="mod2_field">Stock</p>
-          <div class="ly-row-text">
-            <h3 class="ly-h3" data-i="mod2_title">Optimización de inventario</h3>
-            <p data-i="mod2_text">Nunca más sobrestock ni faltantes.</p>
-          </div>
-          <span class="ly-row-arrow" aria-hidden="true">→</span>
-        </div>
-        <div class="ly-row">
-          <p class="ly-eyebrow" data-i="mod3_field">Producción</p>
-          <div class="ly-row-text">
-            <h3 class="ly-h3" data-i="mod3_title">Planificación de producción</h3>
-            <p data-i="mod3_text">Qué producir, cuánto y en qué orden, respetando tus restricciones operativas reales.</p>
-          </div>
-          <span class="ly-row-arrow" aria-hidden="true">→</span>
-        </div>
-        <div class="ly-row">
-          <p class="ly-eyebrow" data-i="mod4_field">Precios</p>
-          <div class="ly-row-text">
-            <h3 class="ly-h3" data-i="mod4_title">Recomendador de precios</h3>
-            <p data-i="mod4_text">Elasticidad, precios de referencia del mercado y tus costos reales, combinados en un precio sugerido.</p>
-          </div>
-          <span class="ly-row-arrow" aria-hidden="true">→</span>
-        </div>
-        <div class="ly-row">
-          <p class="ly-eyebrow" data-i="mod5_field">Promociones</p>
-          <div class="ly-row-text">
-            <h3 class="ly-h3" data-i="mod5_title">Evaluación de promociones</h3>
-            <p data-i="mod5_text">Medí el impacto real de tus promociones para tomar mejores decisiones.</p>
-          </div>
-          <span class="ly-row-arrow" aria-hidden="true">→</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── por qué ───────────────────────────────────────── -->
-  <section class="ly-band">
-    <div class="ly-wrap">
-      <div class="ly-head">
-        <p class="ly-eyebrow" data-i="why_eyebrow">Por qué Lytica</p>
-        <h2 class="ly-h1" data-i="why_title">Construido para <em>tu realidad.</em></h2>
-      </div>
-      <div class="ly-grid">
-        <div class="ly-card ly-card-featured">
-          <span class="ly-bar" aria-hidden="true"></span>
-          <h3 class="ly-h3" data-i="why1_title">Adaptado a LATAM</h3>
-          <p data-i="why1_text">Inflación, tasas de interés, volatilidad cambiaria y dinámicas de demanda propias que los modelos genéricos no contemplan.</p>
-        </div>
-        <div class="ly-card">
-          <h3 class="ly-h3" data-i="why2_title">Se integra con tu ERP</h3>
-          <p data-i="why2_text">Compatible con Tango y sistemas existentes. Sin migraciones ni disrupciones operativas.</p>
-        </div>
-        <div class="ly-card">
-          <h3 class="ly-h3" data-i="why3_title">Implementación ágil y personalizada</h3>
-          <p data-i="why3_text">Diseñado para presupuestos PyME. Onboarding rápido, resultados desde el primer mes.</p>
-        </div>
-        <div class="ly-card">
-          <h3 class="ly-h3" data-i="why4_title">Con tu propio agente de IA</h3>
-          <p data-i="why4_text">Interfaz intuitiva y copilot de IA que responde preguntas operativas en lenguaje natural.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ── equipo ────────────────────────────────────────── -->
   <section id="equipo">
     <div class="ly-wrap">
-      <div class="ly-head">
-        <p class="ly-eyebrow" data-i="team_eyebrow">Equipo</p>
-        <h2 class="ly-h1" data-i="team_title">El equipo detrás de <span class="ly-wordmark">Lytica</span>.</h2>
+      <div class="ly-head ly-reveal">
+        <h2 class="ly-h1" data-i="team_title">El equipo detrás de <span class="ly-marca-inline"><img class="ly-logo--tinta" src="lytica-wordmark-tinta.svg" alt="Lytica" width="286" height="158"><img class="ly-logo--crema" src="lytica-wordmark-crema.svg" alt="" aria-hidden="true" width="286" height="158"></span><span class="ly-punto puesto"></span></h2>
       </div>
       <div class="ly-grid ly-grid-3">
-        <div class="ly-card ly-card-featured ly-member">
+        <div class="ly-card ly-card-featured ly-member ly-reveal">
           <div class="ly-portrait">
             <img src="lucia.jpeg" alt="Lucía Demeco" onerror="this.parentElement.setAttribute('data-initials','LD');this.remove()">
           </div>
@@ -536,14 +691,14 @@ section{padding-block:var(--space-16)}
             <h3 class="ly-h3">Lucía Demeco</h3>
             <p class="ly-eyebrow" data-i="lucia_role">Fundadora</p>
           </div>
-          <p data-i="lucia_bio">MSc en Business Analytics &amp; AI en Imperial College London (#2 del mundo, QS 2026) como Chevening Scholar, con formación en Economía Aplicada y Ciencia Política (UTDT) y experiencia en análisis y modelado de datos en las universidades de Oxford y Maryland, en Fundar y en Accenture. Gestiona la empresa agropecuaria de su familia desde los 20 años: la experiencia que dio origen a Lytica.</p>
+          <p data-i="lucia_bio">MSc en Business Analytics &amp; AI en Imperial College London como Chevening Scholar. Analizó y modeló datos en Oxford, Maryland, Fundar y Accenture. Gestiona la empresa agropecuaria de su familia desde los 20 años: la experiencia que dio origen a Lytica.</p>
           <div class="ly-tags">
             <span class="ly-tag" data-i="lucia_tag1">Estrategia</span>
             <span class="ly-tag" data-i="lucia_tag2">Analytics</span>
             <span class="ly-tag" data-i="lucia_tag3">Negocio</span>
           </div>
         </div>
-        <div class="ly-card ly-member">
+        <div class="ly-card ly-card-featured ly-member ly-reveal">
           <div class="ly-portrait">
             <img src="https://magdalenacornejo.github.io/MAGGIE%20CORNEJO_recortada.png" alt="Magdalena Cornejo" onerror="this.parentElement.setAttribute('data-initials','MC');this.remove()">
           </div>
@@ -551,14 +706,14 @@ section{padding-block:var(--space-16)}
             <h3 class="ly-h3">Magdalena Cornejo</h3>
             <p class="ly-eyebrow" data-i="maggie_role">Asesora en Forecasting</p>
           </div>
-          <p data-i="maggie_bio">Doctora en Economía (UBA) y magíster en Econometría (UTDT). Profesora full-time de la Escuela de Negocios de la UTDT e investigadora del CONICET. Especialista en forecasting, series de tiempo y modelación de precios de commodities, con publicaciones en International Journal of Forecasting, Agricultural Economics y Empirical Economics.</p>
+          <p data-i="maggie_bio">Doctora en Economía (UBA) y magíster en Econometría (UTDT). Profesora de la Escuela de Negocios de la UTDT e investigadora del CONICET. Especialista en forecasting, series de tiempo y precios de commodities.</p>
           <div class="ly-tags">
             <span class="ly-tag" data-i="maggie_tag1">Forecasting</span>
             <span class="ly-tag" data-i="maggie_tag2">Series de tiempo</span>
             <span class="ly-tag">CONICET</span>
           </div>
         </div>
-        <div class="ly-card ly-member">
+        <div class="ly-card ly-card-featured ly-member ly-reveal">
           <div class="ly-portrait">
             <img src="javier.jpeg" alt="Javier Marenco" onerror="this.parentElement.setAttribute('data-initials','JM');this.remove()">
           </div>
@@ -566,10 +721,10 @@ section{padding-block:var(--space-16)}
             <h3 class="ly-h3">Javier Marenco</h3>
             <p class="ly-eyebrow" data-i="javier_role">Asesor en Optimización</p>
           </div>
-          <p data-i="javier_bio">Doctor en Ciencias de la Computación (UBA). Director de la Licenciatura en Tecnología Digital y profesor investigador asociado en la UTDT. Especialista en optimización combinatoria, programación lineal entera y aplicaciones de investigación operativa.</p>
+          <p data-i="javier_bio">Doctor en Ciencias de la Computación (UBA). Director de la Licenciatura en Tecnología Digital en la UTDT. Especialista en optimización combinatoria y programación lineal entera.</p>
           <div class="ly-tags">
             <span class="ly-tag" data-i="javier_tag1">Optimización</span>
-            <span class="ly-tag" data-i="javier_tag2">Investigación operativa</span>
+            <span class="ly-tag" data-i="javier_tag2">Operaciones</span>
             <span class="ly-tag">UTDT</span>
           </div>
         </div>
@@ -580,13 +735,13 @@ section{padding-block:var(--space-16)}
   <!-- ── contacto ──────────────────────────────────────── -->
   <section id="contacto">
     <div class="ly-wrap">
-      <div class="ly-callout">
+      <div class="ly-callout ly-reveal">
         <div class="ly-callout-copy">
           <p class="ly-eyebrow" data-i="contact_eyebrow">¿Conversamos?</p>
           <h2 class="ly-h1" data-i="contact_title">Empecemos a transformar tus datos en <em>mejores decisiones.</em></h2>
-          <p class="ly-lead" data-i="contact_lead">Estamos incorporando nuestros primeros clientes en Argentina. Si querés ser parte, escribinos.</p>
+          <p class="ly-lead" data-i="contact_lead">Estamos incorporando nuestros primeros clientes en América Latina. Si querés ser parte, escribinos.</p>
         </div>
-        <form class="ly-form" id="contact-form" name="contact" method="POST">
+        <form class="ly-form" id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="contact">
           <p hidden><input type="text" name="bot-field"></p>
           <div class="ly-form-row">
@@ -616,12 +771,16 @@ section{padding-block:var(--space-16)}
 
   <footer>
     <div class="ly-wrap ly-foot">
+      <div class="ly-foot-top">
       <a href="#top" class="ly-logo" aria-label="Lytica">
         <img class="ly-logo--tinta" src="lytica-v3_tinta-transparente.svg" alt="Lytica" width="380" height="158">
         <img class="ly-logo--crema" src="lytica-v3_crema-transparente.svg" alt="" aria-hidden="true" width="380" height="158">
       </a>
-      <p class="ly-small" data-i="foot_note">Planificación con IA para empresas de consumo masivo · Buenos Aires</p>
-      <a class="ly-site" href="https://lytica.la">lytica.la</a>
+      <a class="ly-mail" href="mailto:info@lytica.la">info@lytica.la</a>
+      </div>
+      <div class="ly-foot-base">
+        <p class="ly-small" data-i="foot_legal">© 2026 Lytica. Todos los derechos reservados.</p>
+      </div>
     </div>
   </footer>
 
@@ -634,39 +793,37 @@ const copy = {
   en:{
     backed_label:'Backed by',
     nav_platform:'Platform', nav_team:'Team', nav_contact:'Contact', nav_cta:'Contact us →',
-    hero_title:'Plan smarter.<br>Decide with <span class="ly-mark">data</span><span class="ly-punto" id="punto-final"></span>',
+    hero_title:'Plan smarter.<br>Decide with <em>data</em><span class="ly-punto" id="punto-final"></span>',
     hero_lead:'We turn your data into better production, stock and pricing decisions, <strong>with analytics and AI agents</strong>.',
     hero_cta1:'Contact us →',
-    problem_eyebrow:'The problem', problem_title:'Your data already has <em>the answers.</em>',
-    problem_text:"Food SMEs already have the data they need: sales, production, stock. The problem is it's scattered across spreadsheets, paper and systems that don't talk to each other, and <strong>no one has the time to turn it into the decisions that move the margins.</strong> Lytica organizes that data, runs the models, and shows what to do.",
-    platform_eyebrow:'Solutions', platform_title:'Five solutions, <em>one platform.</em>',
-    platform_lead:'Lytica connects to your existing data and applies analytical models at every level of operational decision-making — no in-house data science team required.',
-    mod1_field:'Demand', mod1_title:'Demand forecasting', mod1_text:"Predict what you'll sell before it happens.",
-    mod2_field:'Stock', mod2_title:'Inventory optimization', mod2_text:'Never overstock or run out again.',
-    mod3_field:'Production', mod3_title:'Production planning', mod3_text:'What to make, how much and in what order, within your real operational constraints.',
-    mod4_field:'Pricing', mod4_title:'Price recommender', mod4_text:'Elasticity, market reference prices and your real costs, combined into one suggested price.',
-    mod5_field:'Promotions', mod5_title:'Promotion evaluation', mod5_text:'Measure the real impact of your promotions to make better decisions.',
-    why_eyebrow:'Why Lytica', why_title:'Built for <em>your reality.</em>',
-    why1_title:'Adapted to LATAM', why1_text:'Inflation, interest rates, currency volatility and local demand dynamics that generic models ignore.',
-    why2_title:'Plugs into your ERP', why2_text:'Compatible with Tango and existing systems. No migrations, no disruptions.',
-    why3_title:'Agile, personalized rollout', why3_text:'Designed for SME budgets. Fast onboarding, results from month one.',
-    why4_title:'With your own AI agent', why4_text:'An intuitive interface and AI copilot that answers operational questions in plain language.',
-    team_eyebrow:'Team', team_title:'The team behind <span class="ly-wordmark">Lytica</span>.',
+    problem_title:'<span class="ly-parte">The data is already there.</span> <em class="ly-parte">But they are not working for you.</em>',
+    puente_texto1:'It organizes that data, runs the models and tells you what to do.',
+    puente_texto2:'You supervise and execute.',
+    p1_titulo:'Scattered data', p1_texto:"Forms, broken spreadsheets, paper sheets and systems (ERP, CRM) that don't talk to each other. Plenty of information, impossible to cross-check.",
+    s1_etiqueta:'Data infrastructure & integration', s1_texto:'We digitize your paper sheets, replace the spreadsheets and integrate your systems. Clean, connected and in the cloud.',
+    p2_titulo:'Delayed visibility', p2_texto:"The day's numbers aren't in real time when you have to decide.",
+    s2_etiqueta:'Real-time business intelligence', s2_texto:'Stock, production, sales and margins live, each role with its own view, with alerts when something drifts.',
+    p3_titulo:'Reactive planning', p3_texto:'How much to produce and how much to buy gets decided on the fly, reacting to a stockout or a surplus. With no models to anticipate demand.',
+    s3_etiqueta:'Decision modelling', s3_texto:"Demand forecasting and optimization of production, stock and purchasing. You know what's coming and how much is just right.",
+    p4_titulo:'Manual processes', p4_texto:'Requesting and comparing quotes, restocking, updating prices: repetitive tasks that eat up hours, one by one.',
+    s4_etiqueta:'AI agents', s4_texto:'They quote with suppliers, restock and adjust prices for your margin. You approve.',
+
+    team_title:'The team behind <span class="ly-marca-inline"><img class="ly-logo--tinta" src="lytica-wordmark-tinta.svg" alt="Lytica" width="286" height="158"><img class="ly-logo--crema" src="lytica-wordmark-crema.svg" alt="" aria-hidden="true" width="286" height="158"></span><span class="ly-punto puesto"></span>',
     lucia_role:'Founder',
-    lucia_bio:'MSc in Business Analytics &amp; AI at Imperial College London (#2 in the world, QS 2026) as a Chevening Scholar, with a background in Applied Economics and Political Science (UTDT) and experience in data analysis and modelling at the universities of Oxford and Maryland, at Fundar and at Accenture. She has run her family\'s agribusiness since the age of 20: the experience behind Lytica.',
+    lucia_bio:'MSc in Business Analytics &amp; AI at Imperial College London as a Chevening Scholar. Analysed and modelled data at Oxford, Maryland, Fundar and Accenture. She has run her family\'s agribusiness since the age of 20: the experience behind Lytica.',
     lucia_tag1:'Strategy', lucia_tag2:'Analytics', lucia_tag3:'Business',
     maggie_role:'Forecasting advisor',
-    maggie_bio:'PhD in Economics (UBA) and MSc in Econometrics (UTDT). Full-time professor at the UTDT Business School and CONICET researcher. Specialist in forecasting, time series and commodity price modelling, with publications in the International Journal of Forecasting, Agricultural Economics and Empirical Economics.',
+    maggie_bio:'PhD in Economics (UBA) and MSc in Econometrics (UTDT). Professor at the UTDT Business School and CONICET researcher. Specialist in forecasting, time series and commodity prices.',
     maggie_tag1:'Forecasting', maggie_tag2:'Time series',
     javier_role:'Optimization advisor',
-    javier_bio:'PhD in Computer Science (UBA). Director of the BSc in Digital Technology and associate research professor at UTDT. Specialist in combinatorial optimization, integer linear programming and operations research applications.',
-    javier_tag1:'Optimization', javier_tag2:'Operations research',
+    javier_bio:'PhD in Computer Science (UBA). Director of the BSc in Digital Technology at UTDT. Specialist in combinatorial optimization and integer linear programming.',
+    javier_tag1:'Optimization', javier_tag2:'Operations',
     contact_eyebrow:'Shall we talk?',
     contact_title:'Let\'s start turning your data into <em>better decisions.</em>',
-    contact_lead:"We're onboarding our first customers in Argentina. If you want to be part of it, reach out.",
+    contact_lead:"We're onboarding our first customers in Latin America. If you want to be part of it, reach out.",
     form_name:'Name', form_email:'Email', form_company:'Company', form_message:'Tell us about your business',
     form_submit:'Send message →', form_ok:"Thanks! We'll be in touch soon.",
-    foot_note:'AI planning for consumer goods companies · Buenos Aires'
+    foot_legal:'© 2026 Lytica. All rights reserved.'
   }
 };
 document.querySelectorAll('[data-i]').forEach(el => { copy.es[el.dataset.i] = el.innerHTML; });
@@ -710,6 +867,155 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   })
   .catch(() => form.submit());
 });
+
+/* ── las secciones aparecen al entrar en pantalla ────── */
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) return;
+
+  const PASO_CAJA = 380;       // de una caja de problema a la siguiente
+
+  // Los bloques grandes entran por partes —etiqueta, título, texto—:
+  // un bloque entero apareciendo de una no se llega a percibir.
+  document.querySelectorAll('.ly-centered.ly-reveal, .ly-head.ly-reveal, .ly-callout.ly-reveal')
+    .forEach(grupo => {
+      grupo.classList.remove('ly-reveal');
+      Array.from(grupo.children).forEach((hijo, i) => {
+        hijo.classList.add('ly-reveal');
+        hijo.style.transitionDelay = (i * 110) + 'ms';
+      });
+    });
+  // los cuatro problemas entran de a uno; después, sus soluciones igual
+  document.querySelectorAll('.ly-pares').forEach(grilla => {
+    ['.ly-par-problema', '.ly-par-solucion'].forEach(sel => {
+      // Los problemas esperan a que termine el encabezado: si la sección
+      // entra entera en pantalla, igual se lee en orden.
+      const base = sel === '.ly-par-problema' ? 500 : 150;
+      const paso = sel === '.ly-par-problema' ? PASO_CAJA : 200;
+      grilla.querySelectorAll(sel).forEach((caja, i) => {
+        const demora = base + i * paso;
+        caja.style.transitionDelay = demora + 'ms';
+        if (sel === '.ly-par-problema') caja.classList.add('ly-tarde');
+      });
+      if (sel === '.ly-par-problema'){
+        const flecha = grilla.querySelector('.ly-conector--problema');
+        const cajas = grilla.querySelectorAll(sel);
+        if (flecha && cajas.length){
+          flecha.classList.add('ly-tarde');
+          flecha.style.transitionDelay = (base + cajas.length * paso) + 'ms';
+        }
+      }
+    });
+  });
+  // el título entra en dos tiempos y el párrafo después de los dos
+  document.querySelectorAll('.ly-pares-head .ly-h1').forEach(h => {
+    const partes = h.querySelectorAll('.ly-parte');
+    if (!partes.length) return;
+    h.classList.remove('ly-reveal');
+    partes.forEach((parte, i) => {
+      parte.classList.add('ly-reveal', 'ly-tarde');
+      parte.style.transitionDelay = (i * 430) + 'ms';
+    });
+  });
+  document.querySelectorAll('.ly-pares-head').forEach(h => h.classList.remove('ly-reveal'));
+
+  // en grillas y listas, uno detrás de otro
+  document.querySelectorAll('.ly-grid').forEach(cont => {
+    Array.from(cont.children).forEach((hijo, i) => {
+      if (hijo.classList.contains('ly-reveal')) hijo.style.transitionDelay = (i * 90) + 'ms';
+    });
+  });
+
+  document.documentElement.classList.add('js-reveal');
+  // Las soluciones se revelan más abajo que su problema: primero se
+  // lee el problema y, al seguir bajando, entra la respuesta al lado.
+  // El puente entra en pasos: primero la línea, después el logo y
+  // al final las dos frases.
+  const puente = document.querySelector('.ly-puente');
+  if (puente){
+    puente.querySelectorAll('.ly-paso').forEach(paso => paso.classList.add('ly-reveal'));
+  }
+
+  const soluciones = document.querySelectorAll('.ly-solucion');
+  soluciones.forEach(el => el.classList.add('ly-reveal'));
+
+  const bloques = document.querySelectorAll('.ly-reveal:not(.ly-solucion):not(.ly-tarde):not(.ly-paso):not(.ly-dentro)');
+  const tarde = document.querySelectorAll('.ly-tarde');
+  const todos = document.querySelectorAll('.ly-reveal');
+  if (!todos.length) return;
+
+  // El puente no tiene observador propio: se encadena al último box de
+  // problema. El orden en que corren observadores distintos no está
+  // garantizado, así que calcularlo al vuelo no alcanzaba.
+  const pasos = puente ? Array.from(puente.querySelectorAll('.ly-paso')) : [];
+  let puenteHecho = false;
+  const cajasSolucion = Array.from(document.querySelectorAll('.ly-par-solucion'));
+  let solucionesHechas = false;
+  function revelarSoluciones(base){
+    if (solucionesHechas) return;
+    solucionesHechas = true;
+    cajasSolucion.forEach((caja, i) => {
+      caja.style.transitionDelay = (base + i * 200) + 'ms';
+      caja.classList.add('visto');
+    });
+  }
+  function revelarPuente(base){
+    if (puenteHecho || !pasos.length) return;
+    puenteHecho = true;
+    pasos.forEach((paso, i) => {
+      paso.style.transitionDelay = (base + i * 240) + 'ms';
+      paso.classList.add('visto');
+    });
+    // y detrás, las soluciones
+    revelarSoluciones(base + (pasos.length - 1) * 240 + 750 + 200);
+  }
+
+  const revelar = (entradas, obs) => {
+    entradas.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      el.classList.add('visto');
+      obs.unobserve(el);
+    });
+  };
+  const io = new IntersectionObserver(revelar, { threshold: 0.05, rootMargin: '0px 0px -22% 0px' });
+  bloques.forEach(b => io.observe(b));
+  // El título y los problemas esperan a estar bien dentro de la pantalla:
+  // si disparan al asomar la sección, la secuencia ya terminó cuando mirás.
+  const ioTarde = new IntersectionObserver(revelar, { threshold: 0.1, rootMargin: '0px 0px -18% 0px' });
+  tarde.forEach(b => ioTarde.observe(b));
+  // Las soluciones también se encadenan: entran cuando el puente terminó.
+
+  // El puente vive en su propia pantalla: dispara al entrar en ella y
+  // detrás de él vienen las soluciones.
+  if (puente){
+    const ioPuente = new IntersectionObserver((entradas) => {
+      entradas.forEach(e => {
+        if (e.isIntersecting) revelarPuente(250);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -25% 0px' });
+    ioPuente.observe(puente);
+  }
+  if (cajasSolucion.length){
+    const ioSolRed = new IntersectionObserver((entradas) => {
+      entradas.forEach(e => {
+        if (e.isIntersecting) setTimeout(() => { if (!puenteHecho) revelarSoluciones(250); }, 400);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -30% 0px' });
+    ioSolRed.observe(cajasSolucion[0]);
+  }
+
+  // Red de seguridad: si el observador fallara, nada de lo que el
+  // visitante tiene delante puede quedar invisible. Solo alcanza a lo
+  // que está en pantalla en ese momento: si revelara todo, las
+  // secciones de abajo ya estarían puestas antes de llegar.
+  setTimeout(() => {
+    todos.forEach(b => {
+      const r = b.getBoundingClientRect();
+      if (r.top < innerHeight && r.bottom > 0) b.classList.add('visto');
+    });
+  }, 4000);
+})();
 
 /* ── los datos dispersos se vuelven el punto de Lytica ──
    Un solo movimiento: la nube entra al costado del texto,
@@ -767,8 +1073,20 @@ function layout(){
     rango.detach && rango.detach();
   }
   limite = Math.min(limite, W * 0.62);   // la nube siempre tiene lugar
-  const cx = limite + (W - limite) * 0.5, cy = H * 0.46;
-  const anchoNube = (W - limite) * 0.42, altoNube = H * 0.30;
+
+  // abajo, la nube termina antes de la línea de "Respaldado por"
+  const arriba = 12;
+  let abajo = H - 8;
+  const franja = document.querySelector('.ly-backed');
+  if (franja){
+    const f = franja.getBoundingClientRect();
+    abajo = Math.min(abajo, f.top - rect.top - 28);
+  }
+  if (abajo - arriba < 80) abajo = H - 8;   // por si la franja no está
+
+  const cx = limite + (W - limite) * 0.5;
+  const cy = arriba + (abajo - arriba) * 0.47;
+  const anchoNube = (W - limite) * 0.38, altoNube = (abajo - arriba) * 0.26;
 
   dots = [];
   const cantidad = Math.round(Math.min(260, Math.max(120, (W * H) / 4200)));
@@ -777,7 +1095,7 @@ function layout(){
     intentos++;
     const x = cx + azar() * anchoNube;
     const y = cy + azar() * altoNube;
-    if (x < limite || x > W - 8 || y < 8 || y > H - 8) continue;  // ni sobre el texto ni fuera
+    if (x < limite || x > W - 8 || y < arriba || y > abajo) continue;  // ni sobre el texto, ni debajo de la línea
     dots.push({
       sx: x, sy: y,
       r: 2 + Math.random() * 3.6,
