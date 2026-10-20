@@ -586,7 +586,8 @@ section[id]{scroll-margin-top:89px}
   .ly-nav-inner{grid-template-columns:auto 1fr;gap:var(--space-3);min-height:72px}
   .ly-nav-links{display:none}
   /* el logo manda; el botón y el idioma ceden protagonismo */
-  .ly-logo img{height:52px}
+  .ly-logo img{height:48px}
+  .ly-nav .ly-logo{margin-left:-7px}
   /* el botón calca el alto del selector de idioma */
   .ly-btn-sm{height:24px;font-size:11px;padding:0 10px}
   .ly-nav-right{gap:6px}
@@ -1019,7 +1020,51 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     cajasSolucion.forEach((caja, i) => {
       caja.style.transitionDelay = (base + i * 200) + 'ms';
       caja.classList.add('visto');
+      anotarSolucion(caja);
     });
+  }
+  // Cuándo termina de entrar la última caja blanca. El equipo espera a eso:
+  // ninguna foto puede asomar con la solución todavía a medio aparecer.
+  let finSoluciones = 0, arranqueBlanca = 0;
+  function anotarSolucion(el){
+    finSoluciones = Math.max(finSoluciones,
+      performance.now() + (parseInt(el.style.transitionDelay) || 0) + 750);
+  }
+  const solucionesCompletas = () => !cajasSolucion.length ||
+        cajasSolucion.every(c => c.classList.contains('visto'));
+  const solucionesListas = () => solucionesCompletas() &&
+        performance.now() >= finSoluciones;
+  const equipo = document.getElementById('equipo');
+  const colaEquipo = [];
+  let equipoProgramado = false;
+  function soltarEquipo(){
+    let demora = 0;
+    while (colaEquipo.length){
+      const el = colaEquipo.shift();
+      if (el.classList.contains('visto')) continue;
+      el.style.transitionDelay = demora + 'ms';
+      el.classList.add('visto');
+      demora += 90;
+    }
+  }
+  function programarEquipo(){
+    if (equipoProgramado) return;
+    equipoProgramado = true;
+    // Si las blancas ya están en el aire, basta con esperarlas. Si ni
+    // empezaron (scroll de un salto), las adelantamos y recién después
+    // dejamos pasar al equipo.
+    if (!solucionesCompletas() && finSoluciones <= performance.now()){
+      revelarPuente(0);
+      let demora = 0;
+      cajasSolucion.forEach(caja => {
+        if (caja.classList.contains('visto')) return;
+        caja.style.transitionDelay = demora + 'ms';
+        caja.classList.add('visto');
+        anotarSolucion(caja);
+        demora += 180;
+      });
+    }
+    setTimeout(soltarEquipo, Math.max(0, finSoluciones - performance.now()) + 140);
   }
   function revelarPuente(base){
     if (puenteHecho || !pasos.length) return;
@@ -1035,7 +1080,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     });
     finPuente = performance.now() + base + (pasos.length - 1) * 240 + 750;
     // y detrás, las soluciones
-    revelarSoluciones(base + (pasos.length - 1) * 240 + 750 + 200);
+    revelarSoluciones(base + (pasos.length - 1) * 240 + 600);
   }
 
   // Los tres eslabones van encadenados a mano. Dejarlos a sus
@@ -1104,6 +1149,12 @@ document.getElementById('contact-form').addEventListener('submit', e => {
         if (enCola.indexOf(el) < 0) enCola.push(el);
         return;
       }
+      if (equipo && equipo.contains(el) && !solucionesListas()){
+        obs.unobserve(el);
+        if (colaEquipo.indexOf(el) < 0) colaEquipo.push(el);
+        programarEquipo();
+        return;
+      }
       el.classList.add('visto');
       obs.unobserve(el);
       // el último problema en entrar le da el pie a la flecha
@@ -1114,7 +1165,17 @@ document.getElementById('contact-form').addEventListener('submit', e => {
       // y ninguna solución entra antes de que Lytica haya terminado
       if (el.classList.contains('ly-par-solucion')){
         revelarPuente(250);
-        el.style.transitionDelay = Math.max(120, Math.round(finPuente - performance.now())) + 'ms';
+        // Nunca antes que Lytica, y nunca pisándose con la blanca
+        // anterior: si dos cruzan juntas, la segunda espera su turno.
+        const ahora = performance.now();
+        const inicio = Math.max(ahora + 120, finPuente, arranqueBlanca + 420);
+        arranqueBlanca = inicio;
+        el.style.transitionDelay = Math.round(inicio - ahora) + 'ms';
+        anotarSolucion(el);
+        if (solucionesCompletas() && colaEquipo.length){
+          equipoProgramado = true;
+          setTimeout(soltarEquipo, Math.max(0, finSoluciones - performance.now()) + 140);
+        }
       }
     });
   };
@@ -1161,7 +1222,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     solucionesHechas = true;   // así el puente ya no las dispara en grupo
     cajasSolucion.forEach(caja => {
       caja.style.transitionDelay = '120ms';
-      ioTarde.observe(caja);
+      ioCaja.observe(caja);
     });
   }
   // Las soluciones también se encadenan: entran cuando el puente terminó.
