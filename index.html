@@ -486,6 +486,7 @@ section[id]{scroll-margin-top:89px}
 .ly-callout{
   background:var(--panel);color:var(--on-panel);
   border-radius:var(--radius-lg);
+  overflow:hidden;
   padding:clamp(32px,5vh,56px) clamp(32px,4vw,48px);
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:var(--space-16);align-items:start;
@@ -511,6 +512,16 @@ section[id]{scroll-margin-top:89px}
   display:none;background:var(--lime);color:var(--on-lime);
   border-radius:var(--radius-md);padding:var(--space-4) var(--space-6);
   font-size:15px;font-weight:500;
+  /* queda abajo del panel, y recorre toda la columna para llegar ahí.
+     Dos mecanismos por las dudas: align-self y el margen automático,
+     que en una grilla también empuja el elemento al final de su área. */
+  align-self:end;margin-top:auto;
+  animation:ly-gracias .85s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes ly-gracias{
+  0%{transform:translateY(-460%);opacity:0}
+  18%{opacity:1}
+  100%{transform:translateY(0);opacity:1}
 }
 
 /* ── pie ────────────────────────────────────────────────── */
@@ -529,29 +540,66 @@ section[id]{scroll-margin-top:89px}
   padding-top:var(--space-4);
 }
 .ly-mail{
+  position:relative;
   font-size:15px;color:var(--ink-muted);
   text-decoration:none;
-  transition:color .18s ease,text-decoration-color .18s ease;
+  /* lugar reservado para el punto: así nada se corre al aparecer */
+  padding-left:18px;
+  transition:color .22s ease;
 }
-/* Verde oscurecido hacia tinta: el lime-deep puro sobre crema queda en
-   2,4:1 y el manual lo reserva para cifras grandes. Esta mezcla da 4,7:1. */
+/* el punto de la marca entra desde la izquierda */
+.ly-mail::before{
+  content:'';position:absolute;left:0;top:50%;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--lime);
+  box-shadow:0 0 0 1.5px var(--ink);
+  transform:translate(-6px,-50%) scale(.4);
+  opacity:0;
+  transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .22s ease;
+}
+/* y una línea lime que crece bajo el texto */
+.ly-mail::after{
+  content:'';position:absolute;left:18px;right:0;bottom:-3px;
+  height:2px;border-radius:1px;
+  background:var(--lime-deep);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
 .ly-mail:hover,.ly-mail:focus-visible{
-  color:color-mix(in srgb,var(--lime-deep) 55%,var(--ink));
-  text-decoration:underline;
-  text-decoration-color:var(--lime-deep);
-  text-decoration-thickness:1.5px;
-  text-underline-offset:4px;
+  /* verde hoja: 4,5:1 sobre crema, el único verde saturado que se lee */
+  color:#4C7A14;
 }
+.ly-mail:hover::before,.ly-mail:focus-visible::before{
+  opacity:1;transform:translate(0,-50%) scale(1);
+}
+.ly-mail:hover::after,.ly-mail:focus-visible::after{transform:scaleX(1)}
 
 /* ── responsive ─────────────────────────────────────────── */
 @media (max-width:1200px){
   .ly-pares{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:900px){
+  /* ── celular: una sola columna en todo ── */
   #plataforma,#solucion,#equipo,#contacto{min-height:auto;display:block}
+  #plataforma,#solucion,#equipo{padding-block:clamp(40px,7vh,64px)}
+  /* barra: el menú se esconde, el CTA queda a mano */
+  .ly-nav-inner{grid-template-columns:auto 1fr;gap:var(--space-3);min-height:72px}
+  .ly-nav-links{display:none}
+  .ly-logo img{height:46px}
+  .ly-foot .ly-logo img{height:40px}
+  /* hero */
+  .ly-hero{min-height:auto;padding-block:clamp(48px,9vh,88px) var(--space-8)}
+  .ly-hero-inner{grid-template-columns:minmax(0,1fr)}
+  .ly-backed{margin-top:var(--space-8);gap:var(--space-4)}
+  /* problema y solución */
   .ly-pares{grid-template-columns:minmax(0,1fr)}
-  .ly-callout{padding:var(--space-8) var(--space-6)}
+  .ly-pares-head .ly-h1{font-size:clamp(26px,7vw,34px)}
+  /* equipo */
+  .ly-grid,.ly-grid-3{grid-template-columns:minmax(0,1fr);max-width:420px;margin-inline:auto}
+  /* contacto y pie */
+  .ly-callout{grid-template-columns:minmax(0,1fr);gap:var(--space-8);padding:var(--space-8) var(--space-6)}
   .ly-form-row{grid-template-columns:minmax(0,1fr)}
+  .ly-foot-top{flex-direction:column;align-items:flex-start;gap:var(--space-3)}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:0s!important;animation-duration:0s!important}
