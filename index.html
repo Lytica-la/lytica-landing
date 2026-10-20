@@ -586,12 +586,13 @@ section[id]{scroll-margin-top:89px}
   .ly-nav-inner{grid-template-columns:auto 1fr;gap:var(--space-3);min-height:72px}
   .ly-nav-links{display:none}
   /* el logo manda; el botón y el idioma ceden protagonismo */
-  .ly-logo img{height:68px}
-  .ly-btn-sm{height:32px;font-size:12px;padding:0 var(--space-3)}
+  .ly-logo img{height:52px}
+  /* el botón calca el alto del selector de idioma */
+  .ly-btn-sm{height:24px;font-size:11px;padding:0 10px}
   .ly-nav-right{gap:6px}
   .ly-lang{padding:2px;border-radius:3px}
   .ly-lang button{font-size:10px;padding:3px 6px;letter-spacing:.02em}
-  .ly-nav-inner{gap:var(--space-2);min-height:78px}
+  .ly-nav-inner{gap:var(--space-2);min-height:70px}
   .ly-hero-actions .ly-btn{height:48px;font-size:16px;padding:0 var(--space-6)}
   .ly-foot .ly-logo img{height:40px}
   /* hero */
@@ -669,7 +670,7 @@ section[id]{scroll-margin-top:89px}
     <div class="ly-wrap">
       <div class="ly-pares">
         <div class="ly-pares-head ly-pares-head--problema ly-reveal">
-          <h2 class="ly-h1" data-i="problem_title"><span class="ly-parte">Los datos ya están.</span> <em class="ly-parte">Pero no trabajan para vos.</em></h2>
+          <h2 class="ly-h1" data-i="problem_title"><span class="ly-parte">Los datos ya están.</span> <em class="ly-parte">Pero no trabajando para vos.</em></h2>
           
         </div>
         <div class="ly-par-caja ly-par-problema ly-col-1 ly-reveal">
@@ -854,7 +855,7 @@ const copy = {
     hero_title:'Plan smarter.<br>Decide with <em>data</em><span class="ly-punto" id="punto-final"></span>',
     hero_lead:'We turn your data into better production, stock and pricing decisions, <strong>with analytics and AI agents</strong>.',
     hero_cta1:'Contact us →',
-    problem_title:'<span class="ly-parte">The data is already there.</span> <em class="ly-parte">But they are not working for you.</em>',
+    problem_title:'<span class="ly-parte">The data is already there.</span> <em class="ly-parte">But not working for you.</em>',
     puente_texto1:'It organizes that data, runs the models and tells you what to do.',
     puente_texto2:'You supervise and execute.',
     p1_titulo:'Scattered data', p1_texto:"Forms, broken spreadsheets, paper sheets and systems (ERP, CRM) that don't talk to each other. Plenty of information, impossible to cross-check.",
@@ -956,15 +957,12 @@ document.getElementById('contact-form').addEventListener('submit', e => {
       grilla.querySelectorAll(sel).forEach((caja, i) => {
         const demora = base + i * paso;
         caja.style.transitionDelay = demora + 'ms';
-        if (sel === '.ly-par-problema') caja.classList.add('ly-tarde');
+        if (sel === '.ly-par-problema') caja.classList.add(angosto ? 'ly-caja-cel' : 'ly-tarde');
       });
       if (sel === '.ly-par-problema'){
+        // La flecha no se observa: la dispara el último box (ver más abajo).
         const flecha = grilla.querySelector('.ly-conector--problema');
-        const cajas = grilla.querySelectorAll(sel);
-        if (flecha && cajas.length){
-          flecha.classList.add('ly-tarde');
-          flecha.style.transitionDelay = (base + cajas.length * paso) + 'ms';
-        }
+        if (flecha) flecha.classList.add('ly-encadenado');
       }
     });
   });
@@ -974,8 +972,11 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     if (!partes.length) return;
     h.classList.remove('ly-reveal');
     partes.forEach((parte, i) => {
-      parte.classList.add('ly-reveal', 'ly-tarde');
-      parte.style.transitionDelay = (i * 430) + 'ms';
+      // En celular la segunda mitad no entra sola: espera a que sigas
+      // bajando, así primero se lee "Los datos ya están." y recién
+      // después llega el pero. En escritorio van seguidas.
+      parte.classList.add('ly-reveal', (innerWidth < 700 && i > 0) ? 'ly-encadenado' : 'ly-tarde');
+      parte.style.transitionDelay = ((innerWidth < 700 ? 0 : i) * 430) + 'ms';
     });
   });
   document.querySelectorAll('.ly-pares-head').forEach(h => h.classList.remove('ly-reveal'));
@@ -1000,7 +1001,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   const soluciones = document.querySelectorAll('.ly-solucion');
   soluciones.forEach(el => el.classList.add('ly-reveal'));
 
-  const bloques = document.querySelectorAll('.ly-reveal:not(.ly-solucion):not(.ly-tarde):not(.ly-paso):not(.ly-dentro)');
+  const bloques = document.querySelectorAll('.ly-reveal:not(.ly-solucion):not(.ly-tarde):not(.ly-paso):not(.ly-dentro):not(.ly-encadenado):not(.ly-caja-cel)');
   const tarde = document.querySelectorAll('.ly-tarde');
   const todos = document.querySelectorAll('.ly-reveal');
   if (!todos.length) return;
@@ -1022,28 +1023,98 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   }
   function revelarPuente(base){
     if (puenteHecho || !pasos.length) return;
+    // Si el scroll llegó acá antes que los boxes o la flecha, los
+    // adelantamos nosotros: el orden no depende de quién mire primero.
+    revelarProblemas();
+    revelarFlecha(0);
     puenteHecho = true;
     base += Math.max(0, finFlecha - performance.now());
     pasos.forEach((paso, i) => {
       paso.style.transitionDelay = (base + i * 240) + 'ms';
       paso.classList.add('visto');
     });
+    finPuente = performance.now() + base + (pasos.length - 1) * 240 + 750;
     // y detrás, las soluciones
     revelarSoluciones(base + (pasos.length - 1) * 240 + 750 + 200);
   }
 
-  // Cuándo termina de entrar la flecha que cierra los problemas. El
-  // puente espera a eso: si no, al scrollear rápido Lytica aparece
-  // antes que la flecha, que está en la pantalla anterior.
-  let finFlecha = 0;
+  // Los tres eslabones van encadenados a mano. Dejarlos a sus
+  // observadores no alcanzaba: cuando dos se cruzan en el mismo frame,
+  // el navegador no garantiza cuál corre primero, y ahí Lytica se
+  // adelantaba a la flecha, que vive en la pantalla anterior.
+  const cajasProblema = Array.from(document.querySelectorAll('.ly-par-problema'));
+  const flechaEl = document.querySelector('.ly-conector--problema');
+  let flechaHecha = false, finFlecha = 0, finPuente = 0;
+  const problemasCompletos = () => cajasProblema.length &&
+        cajasProblema.every(c => c.classList.contains('visto'));
+
+  // Cuándo arranca la última caja negra que entró. La flecha nunca
+  // puede adelantarse a eso, pida lo que pida quien la dispare.
+  let arranqueUltima = 0;
+  function anotarCaja(el){
+    arranqueUltima = Math.max(arranqueUltima,
+      performance.now() + (parseInt(el.style.transitionDelay) || 0));
+  }
+  function revelarFlecha(demora){
+    if (flechaHecha || !flechaEl) return;
+    flechaHecha = true;
+    demora = Math.max(0, demora, arranqueUltima - performance.now() + 380);
+    flechaEl.style.transitionDelay = demora + 'ms';
+    flechaEl.classList.add('visto');
+    finFlecha = performance.now() + demora + 750;
+  }
+  function revelarProblemas(){
+    let demora = 0;
+    cajasProblema.forEach(caja => {
+      if (caja.classList.contains('visto')) return;
+      caja.style.transitionDelay = demora + 'ms';
+      caja.classList.add('visto');
+      anotarCaja(caja);
+      demora += 160;
+    });
+    return demora;
+  }
+
+  // En celular el título entra en dos tiempos y las cajas esperan:
+  // si no, la primera negra comparte pantalla con el título y salen juntas.
+  const segunda = document.querySelector('.ly-pares-head .ly-h1 .ly-parte + .ly-parte');
+  const esperaTitulo = innerWidth < 700 && !!segunda;
+  const tituloListo = () => !esperaTitulo || segunda.classList.contains('visto');
+  const enCola = [];
+  function soltarCola(){
+    let demora = 220;
+    while (enCola.length){
+      const caja = enCola.shift();
+      if (caja.classList.contains('visto')) continue;
+      caja.style.transitionDelay = demora + 'ms';
+      caja.classList.add('visto');
+      anotarCaja(caja);
+      demora += 200;
+      if (problemasCompletos()) revelarFlecha(demora + 180);
+    }
+  }
+
   const revelar = (entradas, obs) => {
     entradas.forEach(e => {
       if (!e.isIntersecting) return;
       const el = e.target;
+      if (el.classList.contains('visto')) { obs.unobserve(el); return; }
+      if (el.classList.contains('ly-par-problema') && !tituloListo()){
+        obs.unobserve(el);
+        if (enCola.indexOf(el) < 0) enCola.push(el);
+        return;
+      }
       el.classList.add('visto');
       obs.unobserve(el);
-      if (el.classList.contains('ly-conector--problema')){
-        finFlecha = performance.now() + (parseInt(el.style.transitionDelay) || 0) + 750;
+      // el último problema en entrar le da el pie a la flecha
+      if (el.classList.contains('ly-par-problema')){
+        anotarCaja(el);
+        if (problemasCompletos()) revelarFlecha(0);
+      }
+      // y ninguna solución entra antes de que Lytica haya terminado
+      if (el.classList.contains('ly-par-solucion')){
+        revelarPuente(250);
+        el.style.transitionDelay = Math.max(120, Math.round(finPuente - performance.now())) + 'ms';
       }
     });
   };
@@ -1053,6 +1124,36 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   // si disparan al asomar la sección, la secuencia ya terminó cuando mirás.
   const ioTarde = new IntersectionObserver(revelar, { threshold: 0.1, rootMargin: '0px 0px -18% 0px' });
   tarde.forEach(b => ioTarde.observe(b));
+  // En celular cada caja negra espera a estar bien arriba en la pantalla:
+  // para entonces el título ya se leyó y subió.
+  const ioCaja = new IntersectionObserver(revelar, { threshold: 0.1, rootMargin: '0px 0px -45% 0px' });
+  document.querySelectorAll('.ly-caja-cel').forEach(b => ioCaja.observe(b));
+
+  // La segunda mitad del título, en celular, se destraba con el scroll.
+  if (innerWidth < 700){
+    document.querySelectorAll('.ly-pares-head .ly-h1').forEach(h => {
+      const partes = Array.from(h.querySelectorAll('.ly-parte'));
+      if (partes.length < 2) return;
+      const resto = partes.slice(1);
+      let desde = null;
+      const soltar = () => {
+        removeEventListener('scroll', mirar);
+        resto.forEach((parte, i) => {
+          parte.style.transitionDelay = (i * 160) + 'ms';
+          parte.classList.add('visto');
+        });
+        soltarCola();
+      };
+      const mirar = () => {
+        if (!partes[0].classList.contains('visto')) return;
+        // primer scroll después de leer la primera mitad: desde acá contamos
+        if (desde === null){ desde = scrollY; setTimeout(soltar, 2600); return; }
+        if (scrollY - desde < 90) return;
+        soltar();
+      };
+      addEventListener('scroll', mirar, { passive: true });
+    });
+  }
 
   // En celular las soluciones también están apiladas: en vez de entrar
   // todas juntas detrás del puente, cada una espera su turno de scroll.
@@ -1088,12 +1189,16 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   // visitante tiene delante puede quedar invisible. Solo alcanza a lo
   // que está en pantalla en ese momento: si revelara todo, las
   // secciones de abajo ya estarían puestas antes de llegar.
+  // Lo que va encadenado queda afuera: si la red lo tocara, se saltearía
+  // el orden (era por esto que las cajas salían de a montones).
+  const coreografiado = '.ly-par-problema,.ly-par-solucion,.ly-paso,.ly-encadenado';
   setTimeout(() => {
     todos.forEach(b => {
+      if (b.matches(coreografiado)) return;
       const r = b.getBoundingClientRect();
       if (r.top < innerHeight && r.bottom > 0) b.classList.add('visto');
     });
-  }, 4000);
+  }, 6000);
 })();
 
 /* ── los datos dispersos se vuelven el punto de Lytica ──
@@ -1166,12 +1271,28 @@ function layout(){
   // En celular la nube nace en el borde superior derecho; en escritorio
   // sigue al costado del texto, a media altura.
   const angosto = W < 700;
-  if (angosto) limite = W * 0.5;
-  const cx = angosto ? W * 0.82 : limite + (W - limite) * 0.5;
-  const cy = angosto ? arriba + (abajo - arriba) * 0.08
+  // En celular el texto ocupa el ancho entero, así que la nube no se
+  // corre al costado: se esparce por toda la pantalla y esquiva las
+  // letras. Quedan puntos arriba, al costado y abajo.
+  const vetado = [];
+  if (angosto){
+    ['.ly-hero-copy', '.ly-hero-actions'].forEach(sel => {
+      const n = document.querySelector(sel);
+      if (!n) return;
+      const rango = document.createRange();
+      rango.selectNodeContents(n);
+      const r = rango.getBoundingClientRect();
+      rango.detach && rango.detach();
+      if (!r.width) return;
+      vetado.push({ x0: r.left - rect.left - 14, x1: r.right - rect.left + 14,
+                    y0: r.top - rect.top - 14,  y1: r.bottom - rect.top + 14 });
+    });
+  }
+  const cx = angosto ? W * 0.5 : limite + (W - limite) * 0.5;
+  const cy = angosto ? (arriba + abajo) / 2
                      : arriba + (abajo - arriba) * 0.47;
-  const anchoNube = angosto ? W * 0.17 : (W - limite) * 0.38;
-  const altoNube  = angosto ? (abajo - arriba) * 0.09 : (abajo - arriba) * 0.26;
+  const anchoNube = angosto ? W * 0.5 : (W - limite) * 0.38;
+  const altoNube  = angosto ? (abajo - arriba) * 0.5 : (abajo - arriba) * 0.26;
 
   dots = [];
   const cantidad = Math.round(Math.min(260, Math.max(120, (W * H) / 4200)));
@@ -1180,7 +1301,11 @@ function layout(){
     intentos++;
     const x = cx + azar() * anchoNube;
     const y = cy + azar() * altoNube;
-    if (x < limite || x > W - 8 || y < arriba || y > abajo) continue;  // ni sobre el texto, ni debajo de la línea
+    if (x > W - 8 || y < arriba || y > abajo) continue;   // ni afuera, ni debajo de la línea
+    if (angosto){
+      if (x < 8) continue;
+      if (vetado.some(z => x > z.x0 && x < z.x1 && y > z.y0 && y < z.y1)) continue;
+    } else if (x < limite) continue;                       // en escritorio, nunca sobre el texto
     dots.push({
       sx: x, sy: y,
       r: 2 + Math.random() * 3.6,
