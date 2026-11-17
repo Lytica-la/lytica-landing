@@ -216,6 +216,39 @@ section{padding-block:clamp(72px,11vh,132px)}
 }
 #solucion .ly-pares{margin-top:clamp(28px,4vh,48px)}
 #solucion > .ly-wrap{width:100%}
+/* ── caso de éxito ──────────────────────────────────────── */
+#casos{padding-block:clamp(48px,8vh,88px)}
+#casos > .ly-wrap{width:100%}
+.ly-caso{max-width:760px;
+  display:flex;flex-direction:column;gap:clamp(20px,1.8vw,26px);
+  background:var(--surface-raised);
+  border:1.5px solid var(--ink);border-radius:var(--radius-lg);
+  padding:clamp(24px,2.2vw,32px);
+  transition:transform .45s cubic-bezier(.22,1,.36,1),
+             box-shadow .45s cubic-bezier(.22,1,.36,1)}
+.ly-caso:hover{transform:translateY(-4px);
+  box-shadow:0 18px 38px -26px rgba(20,24,15,.5)}
+.ly-caso blockquote{font-family:var(--font-display);font-weight:300;
+  font-size:clamp(20px,1.85vw,26px);line-height:1.28;letter-spacing:-.018em;
+  margin:0;color:var(--ink);text-wrap:pretty}
+.ly-caso blockquote em{font-style:italic}
+.ly-caso-pie{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--space-6);flex-wrap:wrap}
+.ly-firma{display:flex;align-items:center;gap:var(--space-3)}
+.ly-firma-foto{width:42px;height:42px;border-radius:50%;flex:none;overflow:hidden;
+  display:inline-flex;align-items:center;justify-content:center;background:var(--lime)}
+.ly-firma-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.ly-firma-txt b{display:block;font-size:13px;font-weight:600}
+.ly-firma-txt span{display:block;font-size:12.5px;color:var(--ink-muted)}
+.ly-caso-logo{height:46px;width:auto;display:block}
+.ly-mods{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:0;padding:0;list-style:none;
+  padding-top:clamp(20px,1.8vw,26px);border-top:1px solid var(--line)}
+.ly-mods li{font-size:12.5px;line-height:1.3;padding:7px 14px;color:var(--ink);
+  background:var(--surface-sunken);border-radius:var(--radius-pill);
+  transition:background .3s cubic-bezier(.22,1,.36,1),
+             transform .3s cubic-bezier(.22,1,.36,1)}
+.ly-mods li:hover{background:var(--lime-soft);transform:translateY(-2px)}
+
 #equipo{
   min-height:calc(100svh - 89px);
   display:flex;align-items:center;
@@ -306,6 +339,15 @@ section[id]{scroll-margin-top:89px}
 :root.js-reveal .ly-reveal{opacity:0;transform:translateY(48px)}
 :root.js-reveal .ly-solucion.ly-reveal{transform:translateY(-26px)}
 :root.js-reveal .ly-solucion.ly-reveal.visto{transform:none}
+:root.js-reveal .ly-mods li{opacity:0;transform:translateY(12px) scale(.96);
+  transition:opacity .55s cubic-bezier(.22,1,.36,1),
+             transform .55s cubic-bezier(.22,1,.36,1),
+             background .3s cubic-bezier(.22,1,.36,1)}
+:root.js-reveal .ly-caso.visto .ly-mods li{opacity:1;transform:none}
+:root.js-reveal .ly-caso.visto .ly-mods li:nth-child(1){transition-delay:.42s}
+:root.js-reveal .ly-caso.visto .ly-mods li:nth-child(2){transition-delay:.52s}
+:root.js-reveal .ly-caso.visto .ly-mods li:nth-child(3){transition-delay:.62s}
+:root.js-reveal .ly-caso.visto .ly-mods li:nth-child(4){transition-delay:.72s}
 :root.js-reveal .ly-reveal.visto{
   opacity:1;transform:none;
   transition:opacity .75s cubic-bezier(.22,1,.36,1),
@@ -598,6 +640,8 @@ section[id]{scroll-margin-top:89px}
   /* ── celular: una sola columna en todo ── */
   #plataforma,#solucion,#equipo,#contacto{min-height:auto;display:block}
   #plataforma,#solucion,#equipo{padding-block:clamp(40px,7vh,64px)}
+  #casos{padding-block:clamp(36px,6vh,56px)}
+  .ly-caso-logo{height:40px}
   /* barra: el menú se esconde, el CTA queda a mano */
   .ly-nav-inner{grid-template-columns:auto 1fr;gap:var(--space-3);min-height:72px}
   .ly-nav-links{display:none}
@@ -644,6 +688,7 @@ section[id]{scroll-margin-top:89px}
     </a>
     <ul class="ly-nav-links">
       <li><button type="button" data-goto="plataforma" data-i="nav_platform">Plataforma</button></li>
+      <li><button type="button" data-goto="casos" data-i="nav_cases">Casos</button></li>
       <li><button type="button" data-goto="equipo" data-i="nav_team">Equipo</button></li>
       <li><button type="button" data-goto="contacto" data-i="nav_contact">Contacto</button></li>
     </ul>
@@ -751,7 +796,38 @@ section[id]{scroll-margin-top:89px}
     </div>
   </section>
 
-  <!-- ── plataforma ────────────────────────────────────── -->
+  <!-- ── caso de éxito ─────────────────────────────────── -->
+  <section id="casos">
+    <div class="ly-wrap">
+      <div class="ly-head ly-reveal">
+        <p class="ly-eyebrow" data-i="caso_eyebrow">Caso de éxito</p>
+        <h2 class="ly-h1" data-i="caso_title">Primicia eligió <em>planificar con datos</em>.</h2>
+      </div>
+
+      <article class="ly-caso ly-reveal">
+        <blockquote data-i="caso_cita">No éramos conscientes del potencial que tenía ordenar, controlar y cruzar nuestros datos hasta que implementamos Lytica. Hoy es clave para la planificación y <em>toma de decisiones</em> de nuestra empresa.</blockquote>
+
+        <div class="ly-caso-pie">
+          <div class="ly-firma">
+            <span class="ly-firma-foto"><img src="priscilla.png" alt="Priscilla Harrison" width="200" height="200" loading="lazy"></span>
+            <div class="ly-firma-txt">
+              <b>Priscilla Harrison</b>
+              <span data-i="caso_cargo">Dueña, Primicia</span>
+            </div>
+          </div>
+          <img class="ly-caso-logo" src="primicia.png" alt="Primicia Yerba Mate" width="324" height="233" loading="lazy">
+        </div>
+
+        <ul class="ly-mods">
+          <li data-i="caso_m1">Infraestructura de datos</li>
+          <li data-i="caso_m2">BI en tiempo real</li>
+          <li data-i="caso_m3">Alertas</li>
+          <li data-i="caso_m4">Consultas en lenguaje natural</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
   <!-- ── equipo ────────────────────────────────────────── -->
   <section id="equipo">
     <div class="ly-wrap">
@@ -868,7 +944,7 @@ const copy = {
   es:{},
   en:{
     backed_label:'Backed by',
-    nav_platform:'Platform', nav_team:'Team', nav_contact:'Contact', nav_cta:'Contact us →',
+    nav_platform:'Platform', nav_cases:'Cases', nav_team:'Team', nav_contact:'Contact', nav_cta:'Contact us →',
     hero_title:'Plan smarter.<br>Decide with <em>data</em><span class="ly-punto" id="punto-final"></span>',
     hero_lead:'We turn your data into better production, stock and pricing decisions, <strong>with analytics and AI agents</strong>.',
     hero_cta1:'Contact us →',
@@ -883,6 +959,13 @@ const copy = {
     s3_etiqueta:'Decision modelling', s3_texto:"Analytical models for demand forecasting and production and stock optimization.",
     p4_titulo:'Manual processes', p4_texto:'Requesting and comparing quotes, restocking, updating prices: repetitive tasks that eat up hours, one by one.',
     s4_etiqueta:'AI agents', s4_texto:'They quote with suppliers, suggest purchases, plan production and adjust prices to maximize your revenue. You approve.',
+
+    caso_eyebrow:'Case study',
+    caso_title:'Primicia chose to <em>plan with data</em>.',
+    caso_cita:"We had no idea how much potential there was in organising, controlling and cross-referencing our data until we implemented Lytica. Today it's central to how we <em>plan and make decisions</em>.",
+    caso_cargo:'Owner, Primicia',
+    caso_m1:'Data infrastructure', caso_m2:'Real-time BI',
+    caso_m3:'Alerts', caso_m4:'Natural-language queries',
 
     team_title:'The team behind <span class="ly-marca-inline"><img class="ly-logo--tinta" src="lytica-wordmark-tinta.svg" alt="Lytica" width="286" height="158"><img class="ly-logo--crema" src="lytica-wordmark-crema.svg" alt="" aria-hidden="true" width="286" height="158"></span><span class="ly-punto puesto"></span>',
     lucia_role:'Founder',
@@ -1051,8 +1134,12 @@ document.getElementById('contact-form').addEventListener('submit', e => {
   const solucionesListas = () => solucionesCompletas() &&
         performance.now() >= finSoluciones;
   const equipo = document.getElementById('equipo');
+  // Casos y equipo comparten la misma espera: nada de lo que viene
+  // después de la solución entra con las blancas a medio aparecer.
+  const despues = [document.getElementById('casos'), equipo].filter(Boolean);
+  const esDespues = el => despues.some(sec => sec.contains(el));
   const colaEquipo = [];
-  let equipoProgramado = false;
+  let equipoProgramado = false, drenaje = 0;
   function soltarEquipo(){
     let demora = 0;
     while (colaEquipo.length){
@@ -1064,23 +1151,32 @@ document.getElementById('contact-form').addEventListener('submit', e => {
     }
   }
   function programarEquipo(){
-    if (equipoProgramado) return;
-    equipoProgramado = true;
-    // Si las blancas ya están en el aire, basta con esperarlas. Si ni
-    // empezaron (scroll de un salto), las adelantamos y recién después
-    // dejamos pasar al equipo.
-    if (!solucionesCompletas() && finSoluciones <= performance.now()){
-      revelarPuente(0);
-      let demora = 0;
-      cajasSolucion.forEach(caja => {
-        if (caja.classList.contains('visto')) return;
-        caja.style.transitionDelay = demora + 'ms';
-        caja.classList.add('visto');
-        anotarSolucion(caja);
-        demora += 180;
-      });
+    if (!equipoProgramado){
+      equipoProgramado = true;
+      // Si las blancas ya están en el aire, basta con esperarlas. Si ni
+      // empezaron (scroll de un salto), las adelantamos y recién después
+      // dejamos pasar a lo que sigue.
+      if (!solucionesCompletas() && finSoluciones <= performance.now()){
+        revelarPuente(0);
+        let demora = 0;
+        cajasSolucion.forEach(caja => {
+          if (caja.classList.contains('visto')) return;
+          caja.style.transitionDelay = demora + 'ms';
+          caja.classList.add('visto');
+          anotarSolucion(caja);
+          demora += 180;
+        });
+      }
     }
-    setTimeout(soltarEquipo, Math.max(0, finSoluciones - performance.now()) + 140);
+    // Un solo vaciado no alcanza: lo que entra en la cola después de
+    // ese vaciado se quedaría esperando para siempre. Mientras quede
+    // alguien en la cola, volvemos a programar.
+    if (drenaje) return;
+    drenaje = setTimeout(() => {
+      drenaje = 0;
+      soltarEquipo();
+      if (colaEquipo.length) programarEquipo();
+    }, Math.max(0, finSoluciones - performance.now()) + 140);
   }
   function revelarPuente(base){
     if (puenteHecho || !pasos.length) return;
@@ -1165,7 +1261,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
         if (enCola.indexOf(el) < 0) enCola.push(el);
         return;
       }
-      if (equipo && equipo.contains(el) && !solucionesListas()){
+      if (esDespues(el) && !solucionesListas()){
         obs.unobserve(el);
         if (colaEquipo.indexOf(el) < 0) colaEquipo.push(el);
         programarEquipo();
@@ -1188,10 +1284,7 @@ document.getElementById('contact-form').addEventListener('submit', e => {
         arranqueBlanca = inicio;
         el.style.transitionDelay = Math.round(inicio - ahora) + 'ms';
         anotarSolucion(el);
-        if (solucionesCompletas() && colaEquipo.length){
-          equipoProgramado = true;
-          setTimeout(soltarEquipo, Math.max(0, finSoluciones - performance.now()) + 140);
-        }
+        if (solucionesCompletas() && colaEquipo.length) programarEquipo();
       }
     });
   };
